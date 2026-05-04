@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAST — Sequence Diagrams v1.0</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Sequence Diagrams · v1.0 · 2025</div>
+  <h1><span>FAST</span> — Financial Analysis &amp; System Tracking</h1>
+  <p>20 Use Case · Format Mermaid · Detail sesuai Use Case Diagram</p>
+  <div class="header-meta">
+    <div class="meta-item"><div class="meta-dot dot-green"></div>20 Use Cases</div>
+    <div class="meta-item"><div class="meta-dot dot-blue"></div>7 Include Relations</div>
+    <div class="meta-item"><div class="meta-dot dot-purple"></div>AI/GenAI Integrated</div>
+  </div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="nav-item active" onclick="showPanel('toc')" id="nav-toc">
+      <span class="nav-num">☰</span>
+      <span>Daftar Use Case</span>
+    </div>
+
+    <div class="sidebar-section" style="margin-top:0.5rem">Auth &amp; Akun</div>
+    <div class="nav-item" onclick="showPanel('uc01')" id="nav-uc01">
+      <span class="nav-num">01</span><span>Registrasi &amp; Verifikasi</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc02')" id="nav-uc02">
+      <span class="nav-num">02</span><span>Login</span>
+    </div>
+
+    <div class="sidebar-section">Transaksi</div>
+    <div class="nav-item" onclick="showPanel('uc03')" id="nav-uc03">
+      <span class="nav-num">03</span><span>Catatan Pemasukan &amp; Pengeluaran</span>
+    </div>
+
+    <div class="sidebar-section">Anggaran</div>
+    <div class="nav-item" onclick="showPanel('uc04')" id="nav-uc04">
+      <span class="nav-num">04</span><span>Atur Anggaran Bulanan</span>
+      <div class="nav-badges"><span class="nb nb-inc">INC</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc05')" id="nav-uc05">
+      <span class="nav-num">05</span><span>Rekomendasi Alokasi Anggaran</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc06')" id="nav-uc06">
+      <span class="nav-num">06</span><span>Atur Batas Pengeluaran</span>
+      <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc07')" id="nav-uc07">
+      <span class="nav-num">07</span><span>Notifikasi Peringatan</span>
+    </div>
+
+    <div class="sidebar-section">Tabungan</div>
+    <div class="nav-item" onclick="showPanel('uc08')" id="nav-uc08">
+      <span class="nav-num">08</span><span>Buat &amp; Lacak Target Tabungan</span>
+      <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc09')" id="nav-uc09">
+      <span class="nav-num">09</span><span>Progress Bar Tabungan</span>
+    </div>
+
+    <div class="sidebar-section">Struk &amp; OCR</div>
+    <div class="nav-item" onclick="showPanel('uc10')" id="nav-uc10">
+      <span class="nav-num">10</span><span>Upload Gambar Struk</span>
+      <div class="nav-badges"><span class="nb nb-inc">INC</span><span class="nb nb-ai">AI</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc11')" id="nav-uc11">
+      <span class="nav-num">11</span><span>Ekstraksi Teks OCR</span>
+      <div class="nav-badges"><span class="nb nb-ai">AI</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc12')" id="nav-uc12">
+      <span class="nav-num">12</span><span>Strukturisasi Data OCR</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc13')" id="nav-uc13">
+      <span class="nav-num">13</span><span>Klasifikasi Kategori Item</span>
+      <div class="nav-badges"><span class="nb nb-ai">AI</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc14')" id="nav-uc14">
+      <span class="nav-num">14</span><span>Validasi Manual Data</span>
+    </div>
+
+    <div class="sidebar-section">Dashboard &amp; Analitik</div>
+    <div class="nav-item" onclick="showPanel('uc15')" id="nav-uc15">
+      <span class="nav-num">15</span><span>Pantau Dashboard</span>
+      <div class="nav-badges"><span class="nb nb-ext">EXT</span><span class="nb nb-ai">AI</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc16')" id="nav-uc16">
+      <span class="nav-num">16</span><span>Visualisasi Grafik</span>
+      <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc17')" id="nav-uc17">
+      <span class="nav-num">17</span><span>Generate Insight GenAI</span>
+      <div class="nav-badges"><span class="nb nb-ai">AI</span></div>
+    </div>
+
+    <div class="sidebar-section">Profil Keuangan</div>
+    <div class="nav-item" onclick="showPanel('uc18')" id="nav-uc18">
+      <span class="nav-num">18</span><span>Profil Keuangan Pengguna</span>
+      <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc19')" id="nav-uc19">
+      <span class="nav-num">19</span><span>Skor Kesehatan Keuangan</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('uc20')" id="nav-uc20">
+      <span class="nav-num">20</span><span>Rekapan Pengeluaran</span>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- TOC PANEL -->
+    <div class="diagram-panel active" id="panel-toc">
+      <div class="panel-header">
+        <div class="panel-uc">FAST · v1.0 · 2025</div>
+        <div class="panel-title">Daftar Lengkap Use Case</div>
+        <div class="panel-meta">
+          <span class="tag tag-include"><<include>> = 7 relasi</span>
+          <span class="tag tag-extend"><<extend>> = 6 relasi</span>
+          <span class="tag tag-ai">AI/GenAI = 5 use case</span>
+        </div>
+      </div>
+      <div class="toc-panel">
+        <div class="toc-grid" id="toc-grid"></div>
+      </div>
+    </div>
+
+    <!-- UC PANELS (generated by JS) -->
+
+  </main>
+</div>
+
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script src="script.js"></script>
+</body>
+</html>
