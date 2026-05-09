@@ -3,7 +3,7 @@ const ucData = [
     id: 'uc01', uc: 'UC-01', title: 'Registrasi via Email',
     actors: ['User', 'Frontend', 'Backend', 'Database', 'EmailService'],
     relation: null,
-    note: 'Pendaftaran akun baru menggunakan Email. Sistem mengirimkan verifikasi dan mengarahkan pengguna ke Dashboard setelah berhasil.',
+    note: 'Pendaftaran akun baru menggunakan Email. Setelah registrasi berhasil, user langsung diarahkan ke Dashboard tanpa redirect ke halaman Login — mengurangi aktivitas input berulang.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
@@ -11,25 +11,28 @@ const ucData = [
     participant DB as Database (SQL)
     participant Email as EmailService
 
-    Note over User, Email: Registrasi Akun Baru
+    Note over User, Email: Registrasi Akun Baru via Email
 
+    User->>UI: Buka halaman Register
     User->>UI: Isi Form Registrasi (Name, Email, Password)
-    UI->>UI: Validasi Input
-    UI->>Server: POST /register
+    UI->>UI: Validasi Input (format email, password strength)
+    UI->>Server: POST /auth/register { name, email, password }
     Server->>Server: Hash Password (bcrypt)
     %% Keterangan: Gunakan Parameterized Query (Prepared Statement) untuk cegah SQL Injection
     Server->>DB: INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)
     DB-->>Server: Return user.id
     Server-)Email: Kirim Email Verifikasi (Async)
-    Server-->>UI: 200 OK (Token)
-    UI->>UI: Simpan Token
-    UI-->>User: Redirect ke Dashboard`
+    Server->>Server: Generate JWT Token
+    Server-->>UI: 201 Created { token, user }
+    Note over UI, User: Direct ke Dashboard tanpa redirect ke Login
+    UI->>UI: Simpan Token ke localStorage
+    UI-->>User: Redirect langsung ke Dashboard`
   },
   {
     id: 'uc02', uc: 'UC-02', title: 'Registrasi via Google Auth',
     actors: ['User', 'Frontend', 'Backend', 'Database', 'GoogleAuth'],
     relation: null,
-    note: 'Pendaftaran akun baru menggunakan akun Google. Sistem mendaftarkan email dari Google dan mengarahkan ke Dashboard.',
+    note: 'Pendaftaran akun baru menggunakan akun Google. Setelah registrasi, user langsung diarahkan ke Dashboard tanpa redirect ke Login — mengurangi aktivitas input berulang.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
@@ -39,7 +42,7 @@ const ucData = [
 
     Note over User, Google: Registrasi via Google Auth
 
-    User->>UI: Klik "Lanjutkan dengan Google"
+    User->>UI: Klik "Daftar dengan Google"
     UI->>Google: Request OAuth Consent
     Google-->>User: Tampilkan Halaman Login Google
     User->>Google: Authorize & Consent
@@ -50,26 +53,29 @@ const ucData = [
     %% Keterangan: Gunakan Parameterized Query (Prepared Statement)
     Server->>DB: INSERT INTO users (name, email, google_id) VALUES (?, ?, ?)
     DB-->>Server: Return user.id
-    Server-->>UI: 200 OK (Token)
-    UI->>UI: Simpan Token
-    UI-->>User: Redirect ke Dashboard`
+    Server->>Server: Generate JWT Token
+    Server-->>UI: 201 Created { token, user }
+    Note over UI, User: Direct ke Dashboard tanpa redirect ke Login
+    UI->>UI: Simpan Token ke localStorage
+    UI-->>User: Redirect langsung ke Dashboard`
   },
   {
     id: 'uc03', uc: 'UC-03', title: 'Login via Email',
     actors: ['User', 'Frontend', 'Backend', 'Database'],
     relation: null,
-    note: 'Autentikasi user dengan email dan password. Menghasilkan token untuk sesi yang aman dan diarahkan ke Dashboard.',
+    note: 'Autentikasi user dengan email dan password. Halaman Login hanya muncul ketika user sudah logout — setelah registrasi user langsung ke Dashboard tanpa perlu login ulang.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over User, DB: Autentikasi via Email
+    Note over User, DB: Login via Email (hanya setelah Logout)
 
+    User->>UI: Buka halaman Login (muncul hanya setelah logout)
     User->>UI: Submit Email & Password
     UI->>UI: Validasi Input
-    UI->>Server: POST /login
+    UI->>Server: POST /auth/login { email, password }
     %% Keterangan: Gunakan Parameterized Query / Prepared Statement untuk cegah SQL Injection
     Server->>DB: SELECT * FROM users WHERE email = ?
     DB-->>Server: Data User
@@ -79,8 +85,9 @@ const ucData = [
         Server-->>UI: 401 Unauthorized
         UI-->>User: Tampilkan pesan error login
     else Password valid
-        Server-->>UI: 200 OK (Token)
-        UI->>UI: Simpan Token
+        Server->>Server: Generate JWT Token
+        Server-->>UI: 200 OK { token, user }
+        UI->>UI: Simpan Token ke localStorage
         UI-->>User: Redirect ke Dashboard
     end`
   },
@@ -88,7 +95,7 @@ const ucData = [
     id: 'uc04', uc: 'UC-04', title: 'Login via Google Auth',
     actors: ['User', 'Frontend', 'Backend', 'Database', 'GoogleAuth'],
     relation: null,
-    note: 'Autentikasi user menggunakan akun Google. Token akan dihasilkan dan user langsung dialihkan ke Dashboard.',
+    note: 'Autentikasi user menggunakan akun Google. Halaman Login hanya muncul ketika user sudah logout — setelah registrasi user langsung ke Dashboard tanpa login ulang.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
@@ -96,8 +103,9 @@ const ucData = [
     participant DB as Database (SQL)
     participant Google as Google Auth API
 
-    Note over User, DB: Autentikasi via Google Auth
+    Note over User, Google: Login via Google (hanya setelah Logout)
 
+    User->>UI: Buka halaman Login (muncul hanya setelah logout)
     User->>UI: Klik "Login dengan Google"
     UI->>Google: Request OAuth Consent
     Google-->>User: Tampilkan Halaman Login Google
@@ -107,72 +115,130 @@ const ucData = [
     Server->>Google: Exchange Code for Profile
     Google-->>Server: User Profile (Email)
     %% Keterangan: Gunakan Parameterized Query (Prepared Statement)
-    Server->>DB: SELECT * FROM users WHERE email = ?
+    Server->>DB: SELECT * FROM users WHERE google_id = ?
     DB-->>Server: Data User
-    Server-->>UI: 200 OK (Token)
-    UI->>UI: Simpan Token
-    UI-->>User: Redirect ke Dashboard`
+    alt User tidak ditemukan
+        Server-->>UI: 404 Not Found
+        UI-->>User: Tampilkan pesan akun belum terdaftar
+    else User ditemukan
+        Server->>Server: Generate JWT Token
+        Server-->>UI: 200 OK { token, user }
+        UI->>UI: Simpan Token ke localStorage
+        UI-->>User: Redirect ke Dashboard
+    end`
   },
   {
     id: 'uc05', uc: 'UC-05', title: 'Catatan Pemasukan',
     actors: ['User', 'Frontend', 'Backend', 'Database'],
-    relation: null,
-    note: 'Pencatatan transaksi manual khusus untuk pemasukan (income). Menambahkan saldo dan tidak memicu peringatan anggaran.',
+    relation: '<<include>> UC-07, UC-11',
+    note: 'Pencatatan pemasukan dengan input nominal, kategori penghasilan, deskripsi, dan tanggal. Setelah disimpan, Backend otomatis menjalankan background process: (1) distribusi alokasi anggaran per kategori berdasarkan % yang di-set user, dan (2) alokasi tabungan ke target aktif. User tidak perlu input manual untuk alokasi.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over User, DB: Pencatatan Pemasukan (Income) Manual
+    Note over User, DB: Pencatatan Pemasukan + Auto-Alokasi [include UC-07, UC-11]
 
     User->>UI: Pilih menu "Catat Pemasukan"
-    User->>UI: Isi jumlah, kategori penghasilan, deskripsi, tanggal
-    UI->>UI: Validasi Input
-    UI->>Server: POST /transactions { type: 'income' }
+    User->>UI: Isi nominal, kategori penghasilan, deskripsi, tanggal
+    UI->>UI: Validasi Input (nominal lebih dari 0)
+    UI->>Server: POST /transactions { type: income, amount, category_id, desc, date }
     Server->>Server: Verifikasi JWT
+    %% Keterangan: INSERT INTO transactions (user_id, type, amount, category_id, description, date)
     Server->>DB: Simpan Transaksi Pemasukan
-    DB-->>Server: Return transaction.id baru
+    DB-->>Server: Return transaction.id
+
+    Note over Server, DB: <<include>> Background Alokasi Anggaran (UC-07)
+
+    %% Keterangan: SELECT * FROM budget_allocations WHERE user_id=? AND status=active
+    Server->>DB: Ambil Konfigurasi Alokasi Anggaran
+    DB-->>Server: Return allocations[]
+
+    alt User memiliki alokasi anggaran aktif
+        loop Setiap kategori alokasi
+            %% Keterangan: Hitung income_amount x allocation_pct / 100
+            Server->>Server: Hitung alokasi per kategori
+            %% Keterangan: UPDATE budget_categories SET remaining += calculated WHERE category_id=?
+            Server->>DB: Update Sisa Anggaran Kategori
+            DB-->>Server: OK
+        end
+    end
+
+    Note over Server, DB: <<include>> Background Alokasi Tabungan (UC-11)
+
+    %% Keterangan: SELECT * FROM saving_goals WHERE user_id=? AND status=active
+    Server->>DB: Ambil Target Tabungan Aktif
+    DB-->>Server: Return active_goals[]
+
+    alt User memiliki target tabungan aktif
+        loop Setiap target tabungan
+            %% Keterangan: Hitung income_amount x saving_allocation_pct / 100
+            Server->>Server: Hitung alokasi tabungan
+            %% Keterangan: UPDATE saving_goals SET current_amount += allocated WHERE id=?
+            Server->>DB: Update Progress Tabungan
+            DB-->>Server: OK
+            Server->>Server: Recalculate estimated_completion_date
+        end
+    end
+
     Server-->>UI: 201 Created
-    UI-->>User: Update UI (Saldo bertambah)`
+    UI-->>User: Update UI (Saldo + Alokasi Anggaran + Progress Tabungan)`
   },
   {
     id: 'uc06', uc: 'UC-06', title: 'Catatan Pengeluaran',
-    actors: ['User', 'Frontend', 'Backend', 'Database'],
+    actors: ['User', 'Frontend', 'Backend', 'Database', 'AIService'],
     relation: '<<extend>> UC-10, UC-13',
-    note: 'Pencatatan pengeluaran (manual atau OCR). Setiap pengeluaran mengevaluasi budget—jika melewati warning_threshold, memicu notifikasi. OCR menyertakan validasi kembali oleh user.',
+    note: 'Pencatatan pengeluaran dengan dua metode yang sinkron: (1) Input Manual dan (2) OCR. Keduanya menghasilkan data identik: nama toko, item (nama + harga), tanggal, total. Kategori diprediksi AI model per item dan kategori summary. Setiap pengeluaran memotong sisa alokasi anggaran per kategori.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
+    participant AI as AIService
 
-    Note over User, DB: Pencatatan Pengeluaran (Manual atau OCR)
+    Note over User, AI: Pencatatan Pengeluaran Sinkron Manual dan OCR [extend UC-10, UC-13]
 
     User->>UI: Pilih "Catat Pengeluaran"
-    User->>UI: Pilih metode (Manual / Upload Struk)
+    User->>UI: Pilih metode (Manual / Upload Struk OCR)
 
-    alt Metode Manual
-        User->>UI: Isi form manual
-        UI->>UI: Validasi Input Manual
-        UI->>Server: POST /transactions { type: 'expense' }
-        Server->>DB: Simpan Transaksi Pengeluaran
-        DB-->>Server: Return transaction.id
+    alt Metode Input Manual
+        %% Keterangan: Field sinkron dengan OCR: nama toko, items[], tanggal, harga, total
+        User->>UI: Isi nama toko dan tanggal
+        User->>UI: Tambah item (nama item + harga per item)
+        UI->>UI: Hitung total otomatis dari semua item
+        UI->>UI: Validasi Input
+        UI->>Server: POST /expenses/manual { store, date, items[], total }
     else Metode OCR
-        Note over User, Server: <<extend>> Upload & Ekstraksi OCR (UC-13 s/d UC-17)
+        Note over User, Server: <<extend>> Upload dan Ekstraksi OCR (UC-13 s/d UC-17)
         User->>UI: Upload Gambar Struk
         UI->>Server: POST /receipts/upload
-        Server-->>UI: Return hasil ekstraksi OCR
-        UI-->>User: Tampilkan form validasi (feedback)
-        User->>UI: Koreksi & Konfirmasi Input
-        UI->>Server: POST /receipts/confirm
-        Server->>DB: Simpan Transaksi Pengeluaran
-        DB-->>Server: Return transaction.id
+        Server-->>UI: Return data terekstrak (nama toko, items[], tanggal, total)
+        UI-->>User: Tampilkan form review (field sama dengan manual)
+        User->>UI: Koreksi jika perlu dan Konfirmasi
+        UI->>Server: POST /expenses/ocr-confirm { store, date, items[], total }
     end
 
-    Server->>DB: Total Pengeluaran Kategori Bulan Ini
-    DB-->>Server: Total
-    Server->>Server: Hitung persentase vs budget limit
+    Note over Server, AI: AI Prediksi Kategori per Item + Summary
+
+    %% Keterangan: Kirim items[] ke AI model untuk klasifikasi otomatis
+    Server->>AI: Prediksi Kategori Items
+    loop Setiap item
+        AI->>AI: Klasifikasi kategori per item
+    end
+    AI->>AI: Tentukan kategori summary keseluruhan
+    AI-->>Server: Return { item_categories[], summary_category }
+
+    %% Keterangan: INSERT INTO expenses + expense_items dengan kategori terprediksi
+    Server->>DB: Simpan Transaksi + Items dengan Kategori
+    DB-->>Server: Return expense.id
+
+    Note over Server, DB: Potong Sisa Alokasi Anggaran per Kategori
+
+    %% Keterangan: UPDATE budget_categories SET remaining -= amount WHERE category_id=?
+    Server->>DB: Kurangi Sisa Anggaran Kategori
+    DB-->>Server: Return sisa anggaran terbaru
+    Server->>Server: Hitung persentase vs alokasi anggaran
 
     alt Pengeluaran >= warning_threshold_pct
         Note over Server, DB: <<extend>> Notifikasi Peringatan (UC-10)
@@ -180,84 +246,87 @@ const ucData = [
         DB-->>Server: OK
     end
 
-    Server-->>UI: 201 Created
-    UI-->>User: Update UI`
+    Server-->>UI: 201 Created { expense, categories, budget_remaining }
+    UI-->>User: Update UI (Sisa anggaran per kategori berkurang)`
   },
   {
-    id: 'uc07', uc: 'UC-07', title: 'Atur Anggaran Bulanan',
+    id: 'uc07', uc: 'UC-07', title: 'Atur Alokasi Anggaran',
     actors: ['User', 'Frontend', 'Backend', 'Database'],
-    relation: '<<include>> UC-08',
-    note: 'User menetapkan limit anggaran per kategori untuk bulan berjalan. Setelah budget disimpan, Backend secara otomatis memanggil logika UC-08 (Rekomendasi Alokasi) menggunakan histori transaksi 1 bulan terakhir.',
+    relation: '<<include>> UC-08 | <<include>> dari UC-05',
+    note: 'User mengkustomisasi alokasi anggaran per kategori dalam bentuk persentase (%) dari pemasukan. Contoh: Makanan 40%, Transportasi 20%, Gaya Hidup 15%, Obat 5%. User bebas memilih periode (bulanan/mingguan). Konfigurasi ini dibaca otomatis oleh UC-05 (background auto-alokasi saat pemasukan masuk). Setelah disimpan, Backend memanggil UC-08 untuk rekomendasi.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over User, DB: Penetapan Anggaran Bulanan per Kategori [include UC-08]
+    Note over User, DB: Kustomisasi Alokasi Anggaran per Kategori [include UC-08]
 
-    User->>UI: Buka menu Anggaran
-    UI->>Server: GET /api/budgets?month=current
-    %% Keterangan: SELECT * FROM budgets WHERE user_id=? AND period=current
-    Server->>DB: Ambil Status Budget
-    %% Keterangan: Return existing_budgets[]
-    DB-->>Server: Data Budget
-    %% Keterangan: 200 OK { existing_budgets[] }
+    User->>UI: Buka menu Alokasi Anggaran
+    UI->>Server: GET /api/budget-allocations?month=current
+    %% Keterangan: SELECT * FROM budget_allocations WHERE user_id=? AND period=current
+    Server->>DB: Ambil Konfigurasi Alokasi
+    DB-->>Server: Return existing_allocations[]
     Server-->>UI: 200 OK
-    %% Keterangan: Tampilkan form anggaran per kategori (pre-filled)
-    UI-->>User: Form Anggaran
+    %% Keterangan: Tampilkan form alokasi per kategori (pre-filled jika sudah ada)
+    UI-->>User: Form Alokasi Anggaran
 
-    %% Keterangan: Isi limit per kategori (Kebutuhan Pokok, Gaya Hidup, dst)
-    User->>UI: Isi Limit Kategori
-    %% Keterangan: POST /api/budgets { category_id, amount_limit, warning_threshold_pct, period }
-    UI->>Server: POST /budgets
-    %% Keterangan: INSERT/UPDATE budgets (UPSERT per kategori)
-    Server->>DB: Simpan Budget
-    DB-->>Server: Return budget records tersimpan
+    %% Keterangan: Set % per kategori: Makanan 40%, Transportasi 20%, Gaya Hidup 15%, Obat 5%
+    User->>UI: Set persentase per kategori
+    %% Keterangan: Pilih periode per kategori: bulanan atau mingguan
+    User->>UI: Pilih periode (bulanan / mingguan)
+    UI->>UI: Validasi total persen tidak melebihi 100%
+    %% Keterangan: POST /api/budget-allocations { allocations[{ category_id, pct, period }] }
+    UI->>Server: POST /budget-allocations
+    %% Keterangan: UPSERT budget_allocations per kategori
+    Server->>DB: Simpan Konfigurasi Alokasi
+    DB-->>Server: Return allocations tersimpan
 
     Note over Server, DB: <<include>> Rekomendasi Alokasi Anggaran (UC-08)
 
     %% Keterangan: SELECT transactions GROUP BY category (historis 1 bulan)
-    Server->>DB: Ambil Histori Transaksi
-    %% Keterangan: Return spending_by_category[]
+    Server->>DB: Ambil Histori Pengeluaran
     DB-->>Server: Data Agregasi
-    Server->>Server: Hitung rekomendasi alokasi 50/30/20
+    Server->>Server: Hitung rekomendasi berdasarkan 50/30/20
 
-    %% Keterangan: 200 OK { budgets[], recommendations[] }
-    Server-->>UI: 200 OK
-    %% Keterangan: Tampilkan donut chart distribusi anggaran + rekomendasi
-    UI-->>User: Tampilkan Chart & Saran`
+    Note over Server, UI: Alokasi berjalan otomatis di background saat pemasukan masuk (UC-05)
+
+    Server-->>UI: 200 OK { allocations[], recommendations[] }
+    %% Keterangan: Tampilkan donut chart distribusi + rekomendasi 50/30/20
+    UI-->>User: Tampilkan Chart Alokasi dan Saran`
   },
   {
     id: 'uc08', uc: 'UC-08', title: 'Rekomendasi Alokasi Anggaran',
     actors: ['Backend', 'Database'],
     relation: '<<include>> dari UC-07',
-    note: 'Sub-proses yang selalu dipanggil saat UC-07 berjalan. Menganalisis histori pengeluaran lalu membandingkan dengan aturan 50/30/20 untuk menghasilkan rekomendasi konkret per kategori.',
+    note: 'Sub-proses yang selalu dipanggil saat UC-07 berjalan. Menganalisis histori pengeluaran lalu membandingkan dengan alokasi % yang di-set user dan aturan 50/30/20 untuk menghasilkan rekomendasi konkret per kategori.',
     code: `sequenceDiagram
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over Server, DB: Kalkulasi Rekomendasi 50/30/20 [include dari UC-07]
+    Note over Server, DB: Kalkulasi Rekomendasi Alokasi 50/30/20 [include dari UC-07]
 
-    %% Keterangan: SELECT category_id, SUM(amount) FROM transactions WHERE user_id=? AND type='expense' AND date >= 1_month_ago GROUP BY category_id
-    Server->>DB: Total Pengeluaran 1 Bulan
-    %% Keterangan: Return spending_by_category[]
+    %% Keterangan: SELECT category_id, SUM(amount) FROM expenses WHERE user_id=? AND date >= 1_month_ago GROUP BY category_id
+    Server->>DB: Total Pengeluaran 1 Bulan per Kategori
     DB-->>Server: Data Agregasi
-    %% Keterangan: SELECT monthly_income_range FROM financial_profiles WHERE user_id=?
-    Server->>DB: Rentang Pemasukan
-    DB-->>Server: Return income range user
-    %% Keterangan: Hitung rasio aktual: Kebutuhan / Gaya Hidup / Tabungan
-    Server->>Server: Hitung Rasio Aktual
+    %% Keterangan: SELECT * FROM budget_allocations WHERE user_id=?
+    Server->>DB: Ambil Alokasi % User Saat Ini
+    DB-->>Server: Return current_allocations[]
+    %% Keterangan: SELECT SUM(amount) FROM transactions WHERE type=income AND user_id=?
+    Server->>DB: Total Pemasukan User
+    DB-->>Server: Return total_income
+    %% Keterangan: Hitung rasio aktual pengeluaran vs alokasi
+    Server->>Server: Hitung Rasio Aktual vs Alokasi User
     Server->>Server: Bandingkan dengan standar 50/30/20 rule
-    Server->>Server: Buat rekomendasi konkret per kategori
-    %% Keterangan: Return recommendations[] { category, current_pct, recommended_pct, suggested_limit }
+    Server->>Server: Buat rekomendasi penyesuaian % per kategori
+    %% Keterangan: Return recommendations[] { category, current_pct, recommended_pct, adjustment }
     Server-->>Server: Return Rekomendasi`
   },
   {
     id: 'uc09', uc: 'UC-09', title: 'Atur Batas Pengeluaran Kategori',
     actors: ['User', 'Frontend', 'Backend', 'Database'],
     relation: '<<extend>> UC-10',
-    note: 'User mengaktifkan peringatan dan mengatur persentase threshold (mis. 80%). Jika pengeluaran saat ini sudah melewati threshold baru, UC-10 (Notifikasi Peringatan) langsung dipicu.',
+    note: 'User mengaktifkan peringatan dan mengatur persentase threshold (mis. 80%) dari alokasi anggaran yang sudah di-set. Contoh: Gaya Hidup dialokasi Rp 75.000/minggu, threshold 80% = warning di Rp 60.000. Jika pengeluaran sudah melewati threshold baru, UC-10 langsung dipicu.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
@@ -268,18 +337,18 @@ const ucData = [
 
     %% Keterangan: Di halaman Anggaran, aktifkan toggle "Peringatan Batas"
     User->>UI: Aktifkan Peringatan
-    %% Keterangan: Geser slider threshold: 80% dari limit Gaya Hidup
+    %% Keterangan: Geser slider threshold: 80% dari alokasi anggaran kategori
     User->>UI: Set Threshold 80%
-    %% Keterangan: PATCH /api/budgets/:id { warning_threshold_pct: 80 }
-    UI->>Server: PATCH /budgets/:id
-    %% Keterangan: UPDATE budgets SET warning_threshold_pct=80 WHERE id=?
+    %% Keterangan: PATCH /api/budget-allocations/:id { warning_threshold_pct: 80 }
+    UI->>Server: PATCH /budget-allocations/:id
+    %% Keterangan: UPDATE budget_allocations SET warning_threshold_pct=80 WHERE id=?
     Server->>DB: Update Threshold
     DB-->>Server: Return updated budget
     %% Keterangan: SELECT SUM(amount) FROM transactions WHERE category_id=? AND month=current
     Server->>DB: SELECT SUM FROM transactions
     %% Keterangan: Return total pengeluaran kategori bulan ini
     DB-->>Server: Total Pengeluaran
-    Server->>Server: Re-evaluasi vs threshold baru
+    Server->>Server: Re-evaluasi vs threshold baru (% dari alokasi anggaran)
 
     alt Pengeluaran sudah >= threshold baru
         Note over Server, DB: <<extend>> Notifikasi Peringatan (UC-10)
@@ -296,18 +365,18 @@ const ucData = [
   {
     id: 'uc10', uc: 'UC-10', title: 'Notifikasi Peringatan',
     actors: ['User', 'Frontend', 'Backend', 'Database'],
-    relation: '<<extend>> dari UC-09 / UC-05',
-    note: 'Dipanggil secara kondisional ketika threshold terlampaui. Menyimpan notifikasi ke DB, push ke Frontend via WebSocket/SSE, dan menampilkan toast alert kepada user.',
+    relation: '<<extend>> dari UC-06 / UC-09',
+    note: 'Dipanggil secara kondisional ketika threshold alokasi anggaran terlampaui oleh pengeluaran (UC-06) atau saat batas baru di-set (UC-09). Menyimpan notifikasi ke DB, push ke Frontend via WebSocket/SSE, dan menampilkan toast alert.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over User, DB: Push Notifikasi Real-time saat Threshold Terlampaui [extend dari UC-09/UC-05]
+    Note over User, DB: Push Notifikasi Real-time saat Threshold Terlampaui [extend dari UC-06/UC-09]
 
-    %% Keterangan: Hitung current_spending / amount_limit × 100
-    Server->>Server: Hitung Persentase Pengeluaran
+    %% Keterangan: Hitung current_spending / allocated_budget x 100
+    Server->>Server: Hitung Persentase Pengeluaran vs Alokasi
     %% Keterangan: Threshold terlampaui (contoh: 82.4% > 80%)
     Server->>Server: Threshold Terlampaui
     %% Keterangan: INSERT INTO notifications (user_id, budget_id, type="budget_warning", title, message, is_read=false)
@@ -315,7 +384,7 @@ const ucData = [
     DB-->>Server: Return notification.id baru
     %% Keterangan: Push notification via WebSocket/SSE { notif_id, type, message }
     Server-)UI: Push Notifikasi Realtime
-    %% Keterangan: Tampilkan toast alert "Peringatan Anggaran Gaya Hidup 82.4%"
+    %% Keterangan: Tampilkan toast alert "Peringatan: Anggaran Gaya Hidup sudah 80% terpakai"
     UI-->>User: Tampilkan Toast Alert
 
     Note over User, DB: User membaca dan membuka notifikasi
@@ -333,76 +402,80 @@ const ucData = [
   {
     id: 'uc11', uc: 'UC-11', title: 'Buat & Lacak Target Tabungan',
     actors: ['User', 'Frontend', 'Backend', 'Database'],
-    relation: '<<extend>> UC-12',
-    note: 'User membuat target tabungan baru. Backend menghitung monthly_allocation dan estimated_completion_date berdasarkan rata-rata income. Setelah tersimpan, UC-12 (Progress Bar) langsung di-render.',
+    relation: '<<extend>> UC-12 | <<include>> dari UC-05',
+    note: 'User membuat target tabungan dan menentukan persentase alokasi dari pemasukan. Progress tabungan otomatis bertambah di background setiap kali pemasukan dicatat (UC-05) — user tidak perlu update progress manual. Backend menghitung estimated_completion_date berdasarkan rata-rata income dan alokasi %.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over User, DB: Pembuatan Target Tabungan dengan Estimasi Pencapaian [extend UC-12]
+    Note over User, DB: Pembuatan Target Tabungan Auto-Alokasi [extend UC-12]
 
     User->>UI: Klik "Tambah Target Tabungan"
-    %% Keterangan: Isi: nama target, jumlah target, saldo awal, tanggal target
-    User->>UI: Isi Form Target
-    %% Keterangan: POST /api/saving-goals { goal_name, target_amount, current_amount, target_date }
+    %% Keterangan: Isi: nama target, jumlah target, saldo awal, tanggal target, % alokasi dari income
+    User->>UI: Isi Form Target + Set Alokasi % dari Pemasukan
+    UI->>UI: Validasi (target > 0, alokasi % > 0)
+    %% Keterangan: POST /api/saving-goals { goal_name, target_amount, current_amount, target_date, allocation_pct }
     UI->>Server: POST /saving-goals
-    %% Keterangan: SELECT AVG(amount) FROM transactions WHERE type='income' AND user_id=?
-    Server->>DB: Rata-rata Pemasukan
+    %% Keterangan: SELECT AVG(amount) FROM transactions WHERE type=income AND user_id=?
+    Server->>DB: Rata-rata Pemasukan User
     DB-->>Server: Return avg_monthly_income
-    %% Keterangan: Hitung monthly_allocation (20% dari income rata-rata)
-    Server->>Server: Hitung Alokasi (20%)
-    Server->>Server: Hitung estimated_completion_date berdasarkan tren tabungan
-    %% Keterangan: INSERT INTO saving_goals (user_id, goal_name, target_amount, current_amount, target_date, monthly_allocation, estimated_completion_date, status='active')
+    %% Keterangan: Hitung monthly_allocation = avg_income x allocation_pct / 100
+    Server->>Server: Hitung Estimasi Alokasi Bulanan
+    Server->>Server: Hitung estimated_completion_date
+    %% Keterangan: INSERT INTO saving_goals (goal_name, target_amount, current_amount, target_date, allocation_pct, monthly_allocation, estimated_completion_date, status=active)
     Server->>DB: Simpan Target Baru
-    DB-->>Server: Return saving_goal.id baru
-    %% Keterangan: 201 Created { saving_goal, progress_pct, estimated_date }
-    Server-->>UI: 201 Created
+    DB-->>Server: Return saving_goal.id
+
+    Note over Server, UI: Progress otomatis terupdate saat pemasukan masuk (UC-05 background)
+
+    Server-->>UI: 201 Created { saving_goal, progress_pct, estimated_date }
 
     Note over UI, DB: <<extend>> Tampilan Progress Bar (UC-12)
 
-    %% Keterangan: Render kartu target tabungan dengan progress bar
-    UI-->>User: Tampilkan Progress Bar`
+    UI-->>User: Tampilkan Progress Bar + Info Auto-Alokasi`
   },
   {
     id: 'uc12', uc: 'UC-12', title: 'Tampilan Progress Bar Tabungan',
     actors: ['Frontend', 'Backend', 'Database'],
     relation: '<<extend>> dari UC-11',
-    note: 'Menampilkan progress visual tabungan secara real-time. Menghitung progress_pct, months_remaining, dan status on_track. Jika tidak on track, menampilkan saran tambahan tabungan.',
+    note: 'Menampilkan progress visual tabungan yang otomatis terupdate dari background process UC-05 (pemasukan). Menampilkan progress_pct, months_remaining, on_track status, info alokasi %, dan terakhir di-update otomatis. Jika tidak on track, menampilkan saran penyesuaian alokasi.',
     code: `sequenceDiagram
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over UI, DB: Render Visual Progress Bar Target Tabungan [extend dari UC-11]
+    Note over UI, DB: Render Progress Tabungan Auto-Update [extend dari UC-11]
 
     UI->>Server: GET /api/saving-goals/:id
     %% Keterangan: SELECT * FROM saving_goals WHERE id=? AND user_id=?
     Server->>DB: Ambil Data Target
-    %% Keterangan: Return { target_amount, current_amount, estimated_completion_date }
     DB-->>Server: Data Target
-    %% Keterangan: Hitung progress_pct = current_amount / target_amount × 100
+    %% Keterangan: Hitung progress_pct = current_amount / target_amount x 100
     Server->>Server: Hitung Persentase Progress
-    Server->>Server: Hitung months_remaining berdasarkan monthly_allocation
-    %% Keterangan: 200 OK { progress_pct: 16.7, months_remaining: 9.6, on_track: false }
-    Server-->>UI: 200 OK
-    UI-->>UI: Render progress bar hijau 16.7%
-    %% Keterangan: Tampilkan label "Rp 2.5jt dari Rp 15jt"
-    UI-->>UI: Tampilkan Label Target
-    %% Keterangan: Tampilkan estimasi "Target tercapai ~Jan 2026"
-    UI-->>UI: Tampilkan Estimasi
+    Server->>Server: Hitung months_remaining berdasarkan allocation_pct
+    %% Keterangan: SELECT MAX(date) FROM transactions WHERE type=income AND user_id=?
+    Server->>DB: Ambil Tanggal Pemasukan Terakhir
+    DB-->>Server: Return last_income_date
+    Server-->>UI: 200 OK { progress_pct, months_remaining, on_track, last_auto_update }
+    UI-->>UI: Render progress bar
+    %% Keterangan: Tampilkan label progress + info alokasi otomatis
+    UI-->>UI: Tampilkan Label Target + Info Alokasi %
+    UI-->>UI: Tampilkan Estimasi Pencapaian
+    %% Keterangan: Tampilkan info "Terakhir update otomatis: [tanggal pemasukan terakhir]"
+    UI-->>UI: Tampilkan Info Auto-Update Terakhir
 
     alt Tidak on track
-        UI-->>UI: Tampilkan saran "Tambah Rp 200rb/bulan"
+        UI-->>UI: Tampilkan saran penyesuaian alokasi %
     end`
   },
   {
     id: 'uc13', uc: 'UC-13', title: 'Upload Gambar Struk',
     actors: ['User', 'Frontend', 'Backend', 'Database', 'Storage'],
-    relation: '<<include>> UC-14',
+    relation: '<<include>> UC-14 | <<extend>> dari UC-06',
     isAI: true,
-    note: 'Entry point pipeline OCR. File gambar divalidasi, diunggah ke object storage (S3/GCS), lalu Backend memicu pipeline OCR (UC-14) secara asinkron. Frontend menampilkan loading state.',
+    note: 'Entry point pipeline OCR, dipicu dari UC-06 saat user memilih metode OCR. File gambar divalidasi, diunggah ke object storage (S3/GCS), lalu Backend memicu pipeline OCR (UC-14) secara asinkron. Frontend menampilkan loading state.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
@@ -587,9 +660,9 @@ const ucData = [
   {
     id: 'uc18', uc: 'UC-18', title: 'Pantau Dashboard',
     actors: ['User', 'Frontend', 'Backend', 'Database', 'AIService'],
-    relation: '<<extend>> UC-20',
+    relation: '<<extend>> UC-20, UC-22',
     isAI: true,
-    note: 'Halaman utama yang menggabungkan data transaksi, status budget, dan insight AI. Insight di-cache di DB; jika belum ada untuk bulan ini, UC-20 (Generate Insight GenAI) dipanggil secara kondisional.',
+    note: 'Halaman utama yang menggabungkan data transaksi, status alokasi anggaran, insight AI, dan skor kesehatan keuangan. Insight di-cache di DB; jika belum ada untuk bulan ini, UC-20 dipanggil. Skor kesehatan (UC-22) ditampilkan sebagai widget.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
@@ -597,7 +670,7 @@ const ucData = [
     participant DB as Database (SQL)
     participant AI as AIService
 
-    Note over User, AI: Agregasi Data & Insight AI untuk Dashboard [extend UC-20]
+    Note over User, AI: Agregasi Data, Insight AI, dan Skor Kesehatan [extend UC-20, UC-22]
 
     User->>UI: Buka halaman Dashboard / Beranda
     UI->>Server: GET /api/dashboard?period=monthly
@@ -605,9 +678,9 @@ const ucData = [
     Server->>DB: Ambil Summary Transaksi
     %% Keterangan: Return { daily_total, weekly_total, monthly_total, by_category[] }
     DB-->>Server: Data Ringkasan Transaksi
-    %% Keterangan: SELECT * FROM budgets WHERE user_id=? AND period=current
-    Server->>DB: Ambil Status Budget
-    DB-->>Server: Return budget status per kategori
+    %% Keterangan: SELECT * FROM budget_allocations WHERE user_id=? AND period=current
+    Server->>DB: Ambil Status Alokasi Anggaran
+    DB-->>Server: Return alokasi anggaran per kategori
     %% Keterangan: checkOrGenerateInsight({ user_id, month, year })
     Server->>AI: Inisiasi Insight AI
     %% Keterangan: SELECT * FROM ai_insights WHERE user_id=? AND period=current
@@ -626,7 +699,13 @@ const ucData = [
     %% Keterangan: 200 OK { summary, budget_status[], insight_text, charts_data[] }
     Server-->>UI: 200 OK
     %% Keterangan: Render kartu ringkasan, pie chart, bar chart, insight AI
-    UI-->>User: Render Komponen Dashboard`
+    UI-->>User: Render Komponen Dashboard
+
+    Note over UI, DB: <<extend>> Skor Kesehatan Keuangan (UC-22)
+    UI->>Server: GET /api/financial-health-score?month=current
+    Server-->>UI: Data Skor Kesehatan
+    %% Keterangan: Render widget gauge skor kesehatan di dashboard
+    UI-->>User: Tampilkan Widget Skor Kesehatan`
   },
   {
     id: 'uc19', uc: 'UC-19', title: 'Visualisasi Grafik Pengeluaran dan Pemasukan',
@@ -712,15 +791,15 @@ const ucData = [
   {
     id: 'uc21', uc: 'UC-21', title: 'Melihat Profil Keuangan Pengguna',
     actors: ['User', 'Frontend', 'Backend', 'Database'],
-    relation: '<<extend>> UC-22, UC-23',
-    note: 'Halaman profil yang memuat data user dan financial_profile sekaligus memicu UC-22 (Skor Kesehatan) dan UC-23 (Rekapan Pengeluaran) sebagai ekstensi konten tambahan.',
+    relation: '<<extend>> UC-23',
+    note: 'Halaman profil yang memuat data user dan financial_profile sekaligus memicu UC-23 (Rekapan Pengeluaran) sebagai ekstensi konten tambahan.',
     code: `sequenceDiagram
     participant User as User (Browser)
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over User, DB: Tampilan Profil Keuangan Lengkap [extend UC-22, UC-23]
+    Note over User, DB: Tampilan Profil Keuangan Lengkap [extend UC-23]
 
     User->>UI: Klik menu "Profil Keuangan"
     UI->>Server: GET /api/profile/financial
@@ -736,12 +815,6 @@ const ucData = [
     %% Keterangan: Render halaman profil: info pribadi + profil keuangan
     UI-->>User: Render Halaman Profil
 
-    Note over UI, DB: <<extend>> Skor Kesehatan Keuangan (UC-22)
-    UI->>Server: GET /api/financial-health-score?month=current
-    %% Keterangan: Return { score_total, breakdown }
-    Server-->>UI: Data Skor Kesehatan
-    UI-->>User: Tampilkan gauge skor kesehatan keuangan
-
     Note over UI, DB: <<extend>> Rekapan Pengeluaran (UC-23)
     UI->>Server: GET /api/transactions/summary?period=monthly
     %% Keterangan: Return { transactions[], summary }
@@ -751,14 +824,14 @@ const ucData = [
   {
     id: 'uc22', uc: 'UC-22', title: 'Melihat Skor Kesehatan Keuangan',
     actors: ['Frontend', 'Backend', 'Database'],
-    relation: '<<extend>> dari UC-21',
-    note: 'Menghitung skor kesehatan keuangan 3 dimensi: konsistensi pencatatan (40 poin), rasio tabungan (35 poin), dan kontrol anggaran (25 poin). Hasil di-cache per bulan di tabel financial_health_scores.',
+    relation: '<<extend>> dari UC-18',
+    note: 'Menghitung skor kesehatan keuangan 3 dimensi: konsistensi pencatatan (40 poin), rasio tabungan (35 poin), dan kontrol anggaran (25 poin). Ditampilkan sebagai widget di Dashboard (UC-18). Hasil di-cache per bulan di tabel financial_health_scores.',
     code: `sequenceDiagram
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over UI, DB: Kalkulasi Skor Kesehatan Keuangan Bulanan [extend dari UC-21]
+    Note over UI, DB: Kalkulasi Skor Kesehatan Keuangan Bulanan [extend dari UC-18]
 
     UI->>Server: GET /api/financial-health-score?month=4&year=2025
     %% Keterangan: SELECT * FROM financial_health_scores WHERE user_id=? AND period_month=4 AND period_year=2025
