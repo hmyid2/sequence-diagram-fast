@@ -1,0 +1,19 @@
+{
+  "theme": "dark",
+  "sequence": {
+    "useMaxWidth": true,
+    "showSequenceNumbers": false,
+    "actorMargin": 35,
+    "messageMargin": 30,
+    "boxTextMargin": 5,
+    "noteMargin": 10,
+    "messageFontSize": 16,
+    "actorFontSize": 16,
+    "noteFontSize": 16,
+    "mirrorActors": true
+  },
+  "themeVariables": {
+    "fontFamily": "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    "fontSize": "14px"
+  }
+}

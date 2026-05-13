@@ -1,95 +1,812 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FAST — Sequence Diagrams v1.0</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAST — Sequence Diagrams v1.0</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-
-<div class="header">
-  <div class="header-badge">Sequence Diagrams · v1.0 · 2025</div>
-  <h1><span>FAST</span> — Financial Analysis &amp; System Tracking</h1>
-  <p>23 Use Case · Format Mermaid · Detail sesuai Use Case Diagram</p>
-  <div class="header-meta">
-    <div class="meta-item"><div class="meta-dot dot-green"></div>23 Use Cases</div>
-    <div class="meta-item"><div class="meta-dot dot-blue"></div>7 Include Relations</div>
-    <div class="meta-item"><div class="meta-dot dot-purple"></div>AI/GenAI Integrated</div>
-  </div>
-</div>
-
-<div class="layout">
-  <nav class="sidebar" id="sidebar">
-    <div class="nav-item active" onclick="showPanel('toc')" id="nav-toc">
-      <span class="nav-num">☰</span>
-      <span>Daftar Use Case</span>
+  <!-- Overlay & Hamburger Toggle -->
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle Navigation">
+    <div class="bar-icon">
+      <span></span>
+      <span></span>
+      <span></span>
     </div>
+  </button>
 
-    <div class="sidebar-section" style="margin-top:0.5rem">Auth &amp; Akun</div>
-    <div class="nav-item" onclick="showPanel('uc01')" id="nav-uc01"><span class="nav-num">01</span><span>Registrasi via Email</span></div>
-    <div class="nav-item" onclick="showPanel('uc02')" id="nav-uc02"><span class="nav-num">02</span><span>Registrasi via Google</span></div>
-    <div class="nav-item" onclick="showPanel('uc03')" id="nav-uc03"><span class="nav-num">03</span><span>Login via Email</span></div>
-    <div class="nav-item" onclick="showPanel('uc04')" id="nav-uc04"><span class="nav-num">04</span><span>Login via Google</span></div>
-
-    <div class="sidebar-section">Transaksi</div>
-    <div class="nav-item" onclick="showPanel('uc05')" id="nav-uc05"><span class="nav-num">05</span><span>Catatan Pemasukan</span><div class="nav-badges"><span class="nb nb-inc">INC</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc06')" id="nav-uc06"><span class="nav-num">06</span><span>Catatan Pengeluaran</span><div class="nav-badges"><span class="nb nb-ext">EXT</span><span class="nb nb-ai">AI</span></div></div>
-
-    <div class="sidebar-section">Anggaran</div>
-    <div class="nav-item" onclick="showPanel('uc07')" id="nav-uc07"><span class="nav-num">07</span><span>Atur Alokasi Anggaran</span><div class="nav-badges"><span class="nb nb-inc">INC</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc08')" id="nav-uc08"><span class="nav-num">08</span><span>Rekomendasi Alokasi</span></div>
-    <div class="nav-item" onclick="showPanel('uc09')" id="nav-uc09"><span class="nav-num">09</span><span>Atur Batas Pengeluaran</span><div class="nav-badges"><span class="nb nb-ext">EXT</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc10')" id="nav-uc10"><span class="nav-num">10</span><span>Notifikasi Peringatan</span></div>
-
-    <div class="sidebar-section">Tabungan</div>
-    <div class="nav-item" onclick="showPanel('uc11')" id="nav-uc11"><span class="nav-num">11</span><span>Target Tabungan</span><div class="nav-badges"><span class="nb nb-ext">EXT</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc12')" id="nav-uc12"><span class="nav-num">12</span><span>Progress Tabungan</span></div>
-
-    <div class="sidebar-section">Struk &amp; OCR</div>
-    <div class="nav-item" onclick="showPanel('uc13')" id="nav-uc13"><span class="nav-num">13</span><span>Upload Gambar Struk</span><div class="nav-badges"><span class="nb nb-inc">INC</span><span class="nb nb-ai">AI</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc14')" id="nav-uc14"><span class="nav-num">14</span><span>Ekstraksi Teks OCR</span><div class="nav-badges"><span class="nb nb-ai">AI</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc15')" id="nav-uc15"><span class="nav-num">15</span><span>Strukturisasi Data</span></div>
-    <div class="nav-item" onclick="showPanel('uc16')" id="nav-uc16"><span class="nav-num">16</span><span>Klasifikasi Kategori</span><div class="nav-badges"><span class="nb nb-ai">AI</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc17')" id="nav-uc17"><span class="nav-num">17</span><span>Validasi Manual</span></div>
-
-    <div class="sidebar-section">Dashboard &amp; Analitik</div>
-    <div class="nav-item" onclick="showPanel('uc18')" id="nav-uc18"><span class="nav-num">18</span><span>Pantau Dashboard</span><div class="nav-badges"><span class="nb nb-ext">EXT</span><span class="nb nb-ai">AI</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc19')" id="nav-uc19"><span class="nav-num">19</span><span>Visualisasi Grafik</span><div class="nav-badges"><span class="nb nb-ext">EXT</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc20')" id="nav-uc20"><span class="nav-num">20</span><span>Insight AI GenAI</span><div class="nav-badges"><span class="nb nb-ext">EXT</span><span class="nb nb-ai">AI</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc22')" id="nav-uc22"><span class="nav-num">22</span><span>Skor Kesehatan</span><div class="nav-badges"><span class="nb nb-ext">EXT</span></div></div>
-
-    <div class="sidebar-section">Profil &amp; Riwayat</div>
-    <div class="nav-item" onclick="showPanel('uc21')" id="nav-uc21"><span class="nav-num">21</span><span>Profil Keuangan</span><div class="nav-badges"><span class="nb nb-ext">EXT</span></div></div>
-    <div class="nav-item" onclick="showPanel('uc23')" id="nav-uc23"><span class="nav-num">23</span><span>Rekapan Pengeluaran</span><div class="nav-badges"><span class="nb nb-ext">EXT</span></div></div>
-  </nav>
-
-  <main class="main">
-
-    <!-- TOC PANEL -->
-    <div class="diagram-panel active" id="panel-toc">
-      <div class="panel-header">
-        <div class="panel-uc">FAST · v1.0 · 2025</div>
-        <div class="panel-title">Daftar Lengkap Use Case</div>
-        <div class="panel-meta">
-          <span class="tag tag-include"><<include>> = 7 relasi</span>
-          <span class="tag tag-extend"><<extend>> = 6 relasi</span>
-          <span class="tag tag-ai">AI/GenAI = 5 use case</span>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>FAST Diagram</h2>
+        <p>Navigasi Use Case</p>
+      </div>
+      <div class="sidebar-nav-top">
+        <div class="nav-item active" onclick="showPanel('toc')" id="nav-toc">
+          <span class="nav-num">☰</span>
+          <span>Daftar Use Case</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('classdiagram')" id="nav-classdiagram">
+          <span class="nav-num">🧩</span>
+          <span>Class Diagram</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('scenario')" id="nav-scenario">
+          <span class="nav-num">📖</span>
+          <span>End-to-End Scenario</span>
         </div>
       </div>
-      <div class="toc-panel">
-        <div class="toc-grid" id="toc-grid"></div>
-      </div>
-    </div>
 
-    <!-- UC PANELS (generated by JS) -->
+      <!-- Tree styles directly injected or in style.css, we use classes here -->
+      <div class="tree-root">
+        <details class="tree-node">
+          <summary class="tree-folder"><span class="folder-icon">📁</span> [A — AUTENTIKASI & ONBOARDING]</summary>
+          <div class="tree-children">
+            <div class="tree-item nav-item" onclick="showPanel('uc01')" id="nav-uc01"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-01</span><span>Registrasi via Email</span></div>
+            <div class="tree-item nav-item" onclick="showPanel('uc02')" id="nav-uc02"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-02</span><span>Registrasi via Google</span></div>
+            <div class="tree-item nav-item" onclick="showPanel('uc03')" id="nav-uc03"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-03</span><span>Login via Email</span></div>
+            <div class="tree-item nav-item" onclick="showPanel('uc04')" id="nav-uc04"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-04</span><span>Login via Google</span></div>
+            <div class="tree-item nav-item" onclick="showPanel('uc25')" id="nav-uc25"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-25</span><span>Setup Awal & Catat Pemasukan Pertama</span></div>
+          </div>
+        </details>
+
+        <details class="tree-node">
+          <summary class="tree-folder"><span class="folder-icon">📁</span> [B-E — TRANSAKSI & ANGGARAN]</summary>
+          <div class="tree-children">
+            <details class="tree-node">
+              <summary class="tree-item nav-item"
+                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc05')" id="nav-uc05">
+                <span class="file-icon">📄</span> <span class="nav-num">UC-05</span><span>Catat Pemasukan</span>
+              </summary>
+              <div class="tree-children">
+                <details class="tree-node">
+                  <summary class="tree-item nav-item"
+                    onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc07')" id="nav-uc07">
+                    <span class="file-icon">📄</span> <span class="nav-num">UC-07</span><span>Atur Alokasi
+                      (50/30/20)</span>
+                  </summary>
+                  <div class="tree-children">
+                    <div class="tree-item nav-item" onclick="showPanel('uc08')" id="nav-uc08"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-08</span><span>Rekomendasi Alokasi</span>
+                    </div>
+                  </div>
+                </details>
+                <details class="tree-node">
+                  <summary class="tree-item nav-item"
+                    onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc11')" id="nav-uc11">
+                    <span class="file-icon">📄</span> <span class="nav-num">UC-11</span><span>Setup Target
+                      Tabungan</span>
+                  </summary>
+                  <div class="tree-children">
+                    <div class="tree-item nav-item" onclick="showPanel('uc12')" id="nav-uc12"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-12</span><span>Progress Bar Tabungan</span>
+                    </div>
+                    <div class="tree-item nav-item" onclick="showPanel('uc24')" id="nav-uc24"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-24</span><span>Toggle Mode Tabungan</span>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </details>
+
+            <details class="tree-node">
+              <summary class="tree-item nav-item"
+                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc06')" id="nav-uc06">
+                <span class="file-icon">📄</span> <span class="nav-num">UC-06</span><span>Catat Pengeluaran</span>
+              </summary>
+              <div class="tree-children">
+                <details class="tree-node">
+                  <summary class="tree-item nav-item"
+                    onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc09')" id="nav-uc09">
+                    <span class="file-icon">📄</span> <span class="nav-num">UC-09</span><span>Atur Threshold</span>
+                  </summary>
+                  <div class="tree-children">
+                    <div class="tree-item nav-item" onclick="showPanel('uc10')" id="nav-uc10"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-10</span><span>Push Notifikasi
+                        Warning</span></div>
+                  </div>
+                </details>
+                <details class="tree-node">
+                  <summary class="tree-folder"><span class="folder-icon">📁</span> <span
+                      class="nav-num">F</span><span>Pipeline OCR Struk</span></summary>
+                  <div class="tree-children">
+                    <div class="tree-item nav-item" onclick="showPanel('uc13')" id="nav-uc13"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-13</span><span>Upload Struk</span></div>
+                    <div class="tree-item nav-item" onclick="showPanel('uc14')" id="nav-uc14"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-14</span><span>Ekstraksi OCR</span></div>
+                    <div class="tree-item nav-item" onclick="showPanel('uc15')" id="nav-uc15"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-15</span><span>Parsing Regex</span></div>
+                    <div class="tree-item nav-item" onclick="showPanel('uc16')" id="nav-uc16"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-16</span><span>Klasifikasi GenAI</span>
+                    </div>
+                    <div class="tree-item nav-item" onclick="showPanel('uc17')" id="nav-uc17"><span
+                        class="file-icon">📄</span> <span class="nav-num">UC-17</span><span>Validasi Manual</span></div>
+                  </div>
+                </details>
+              </div>
+            </details>
+          </div>
+        </details>
+
+        <details class="tree-node">
+          <summary class="tree-folder"><span class="folder-icon">📁</span> [H-I — DASHBOARD & ANALITIK]</summary>
+          <div class="tree-children">
+            <details class="tree-node">
+              <summary class="tree-item nav-item"
+                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc18')" id="nav-uc18">
+                <span class="file-icon">📄</span> <span class="nav-num">UC-18</span><span>Pantau Dashboard</span>
+              </summary>
+              <div class="tree-children">
+                <div class="tree-item nav-item" onclick="showPanel('uc20')" id="nav-uc20-2"><span
+                    class="file-icon">📄</span> <span class="nav-num">UC-20</span><span>Insight AI Gemini</span></div>
+                <div class="tree-item nav-item" onclick="showPanel('uc22')" id="nav-uc22-2"><span
+                    class="file-icon">📄</span> <span class="nav-num">UC-22</span><span>Skor Kesehatan</span></div>
+              </div>
+            </details>
+
+            <details class="tree-node">
+              <summary class="tree-item nav-item"
+                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc19')" id="nav-uc19">
+                <span class="file-icon">📄</span> <span class="nav-num">UC-19</span><span>Visualisasi Grafik</span>
+              </summary>
+              <div class="tree-children">
+                <div class="tree-item nav-item" onclick="showPanel('uc20')" id="nav-uc20-3"><span
+                    class="file-icon">📄</span> <span class="nav-num">UC-20</span><span>Insight AI Gemini</span></div>
+              </div>
+            </details>
+
+            <div class="tree-item nav-item" onclick="showPanel('uc21')" id="nav-uc21"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-21</span><span>Rekap Bulanan Wrapped</span></div>
+            <div class="tree-item nav-item" onclick="showPanel('uc22')" id="nav-uc22"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-22</span><span>Skor Kesehatan</span></div>
+            <div class="tree-item nav-item" onclick="showPanel('uc23')" id="nav-uc23"><span class="file-icon">📄</span>
+              <span class="nav-num">UC-23</span><span>Profil & Export PDF</span></div>
+          </div>
+        </details>
+      </div>
+    </nav>
+
+    <main class="main">
+
+      <!-- SCENARIO PANEL (Moved to top for layout priority) -->
+      <div class="diagram-panel" id="panel-scenario">
+        <div class="panel-header" style="padding: 0.8rem 2rem 0.6rem 4.5rem;">
+          <div class="panel-uc">Skenario Lengkap</div>
+          <div class="panel-title">End-to-End: Perjalanan Finansial Andi Pratama (Mei 2025)</div>
+        </div>
+        <div class="diagram-body" style="text-align: justify; padding-top: 0.5rem;">
+          <div class="relation-note"
+            style="border-left-color: var(--accent); background: rgba(88,166,255,0.03); margin-bottom: 1rem; margin-top: 0;">
+            <h3 style="color: var(--accent); margin-bottom: 0.8rem; font-size: 1rem;">Konteks Awal & Logika Otomasi</h3>
+            <ul style="font-size: 0.88rem; color: var(--text2); padding-left: 1.2rem; line-height: 1.7;">
+              <li><strong>User:</strong> Andi Pratama (Mahasiswa Semester 3)</li>
+              <li><strong>Pemasukan:</strong> Rp 500.000 / minggu (Uang Saku)</li>
+              <li><strong>Tujuan:</strong> Disiplin anggaran dan menabung untuk Laptop Rp 8.000.000.</li>
+              <li><strong>Sistem Flow:</strong> Auto-alokasi berjalan berdasarkan konfigurasi awal. Andi menetapkan
+                persentase alokasi di awal, sehingga setiap kali ada pemasukan masuk, sistem dapat memecah dan
+                memasukkannya ke kategori yang tepat secara otomatis.</li>
+            </ul>
+          </div>
+
+          <h3
+            style="color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 1.5rem; font-size: 1.1rem;">
+            FASE 1: ONBOARDING & AUTENTIKASI (4 Mei 2025)</h3>
+          <p style="font-size: 0.88rem; color: var(--text2); line-height: 1.6; text-align: justify;">Malam itu, Andi
+            yang baru saja naik ke semester 3, merasa uang saku mingguannya selalu habis tanpa jejak yang jelas. Setelah
+            browsing mencari solusi, ia menemukan dan mengunduh aplikasi FAST. Ia merebahkan diri di kasur kosannya,
+            membuka aplikasi tersebut, dan memutuskan untuk langsung membuat akun baru menggunakan email kampus agar
+            terlihat lebih rapi dan profesional.</p>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">1. UC-01: Registrasi via
+            Email</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem;">Andi mengisi form pendaftaran.
+            Frontend melakukan enkripsi dasar dan mengirim payload ke Backend.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/auth/register
+// Request Payload
+{
+  "name": "Andi Pratama",
+  "email": "andi.pratama@mahasiswa.ac.id",
+  "password": "Andr@2025!", // Backend akan hash menggunakan bcrypt (Cost: 12)
+  "device_id": "android-pixel5-abc"
+}
+
+// Response (201 Created)
+{
+  "status": "success",
+  "data": {
+    "user": {
+      "id": 1,
+      "name": "Andi Pratama",
+      "email": "andi.pratama@mahasiswa.ac.id",
+      "created_at": "2025-05-04T19:30:00Z"
+    },
+    "tokens": {
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
+      "expires_in": 3600
+    }
+  }
+}</code></pre>
+          <p style="font-size: 0.85rem; color: var(--text2); font-style: italic;">(Catatan: Jika Andi menggunakan UC-02
+            Registrasi Google, aplikasi akan memanggil API Google OAuth, menukar auth_code dengan profil user, dan
+            mengembalikan struktur token yang sama tanpa menyimpan password).</p>
+
+          <h3
+            style="color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.1rem;">
+            FASE 2: SETUP FONDASI & TARGET TABUNGAN (5 Mei 2025)</h3>
+          <p style="font-size: 0.88rem; color: var(--text2); line-height: 1.6; text-align: justify;">Keesokan paginya,
+            saat sedang duduk di kantin menunggu kelas Algoritma Pemrograman dimulai, Andi memikirkan impian besarnya.
+            Ia sangat membutuhkan laptop baru dengan performa lebih tinggi untuk mengerjakan tugas <em>coding</em> yang
+            semakin berat. Menggunakan waktu senggangnya, Andi mulai mengatur fondasi finansialnya di aplikasi FAST. Ia
+            ingin mendisiplinkan diri dengan mengatur "aturan main" keuangan sebelum ada uang yang masuk, sehingga
+            sistem bisa mengotomasikan alokasinya nanti.</p>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">2. UC-07: Atur Alokasi
+            Anggaran & UC-08: Rekomendasi Alokasi</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem;">Andi mengatur alokasi mingguan
+            menggunakan aturan 50/30/20. Backend menjalankan UC-08 untuk memvalidasi apakah persentase ini sehat.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/budgets/allocation
+// Request
+{
+  "period": "weekly",
+  "allocations": [
+    { "category": "Kebutuhan Pokok", "percentage": 50.0 },
+    { "category": "Hiburan", "percentage": 30.0 },
+    { "category": "Tabungan", "percentage": 20.0 }
+  ]
+}
+
+// Response (200 OK) - Termasuk hasil evaluasi UC-08
+{
+  "status": "success",
+  "recommendation": {
+    "is_healthy": true,
+    "is_healthy": true,
+    "message": "Alokasi 50/30/20 sangat ideal untuk profil mahasiswa."
+  }
+}</code></pre>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">3. UC-11: Buat Target
+            Tabungan & UC-12: Progress Bar</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem;">Andi memasukkan impiannya membeli
+            laptop. Sistem langsung mengkalkulasi estimasi waktu pencapaian berdasarkan alokasi 20% dari estimasi
+            pemasukan rata-rata mingguan.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/savings/goals
+// Request
+{
+  "name": "Laptop Baru untuk Kuliah",
+  "target_amount": 8000000.0,
+  "auto_allocate_pct": 20.0
+}
+
+// Response (201 Created) - Termasuk hasil kalkulasi UC-12
+{
+  "id": 101,
+  "name": "Laptop Baru untuk Kuliah",
+  "current_amount": 0.0,
+  "progress_pct": 0.0,
+  "estimated_completion_date": "2027-01-15", // Kalkulasi: Butuh 20 bulan
+  "status": "Active"
+}</code></pre>
+
+          <h3
+            style="color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.1rem;">
+            FASE 3: ARUS KAS & OTOMASI SISTEM (5 Mei 2025)</h3>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">4. UC-05: Catat
+            Pemasukan</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; text-align: justify;">Siang harinya,
+            layar ponsel Andi menyala menampilkan notifikasi SMS banking: uang saku mingguan dari orang tuanya telah
+            masuk sebesar Rp 500.000. Sambil berjalan menuju perpustakaan, Andi dengan cepat membuka aplikasi FAST dan
+            mencatat pemasukan pertamanya minggu ini. Ia tersenyum lega mengetahui bahwa ia tak perlu lagi pusing
+            membagi-bagi uangnya secara manual.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/transactions/income
+{
+  "amount": 500000.0,
+  "category": "Uang Saku",
+  "date": "2025-05-05T10:00:00Z"
+}</code></pre>
+          <div
+            style="background: rgba(46, 160, 67, 0.05); border-left: 4px solid var(--green); padding: 1rem; margin: 1rem 0; border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--green); font-size: 0.9rem;">⚙️ SYSTEM LOGIC (Background Processing):</strong>
+            <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem;">Sistem mendeteksi adanya income baru
+              dan mengeksekusi trigger secara internal:</p>
+            <ul
+              style="font-size: 0.85rem; color: var(--text2); padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.6;">
+              <li><strong>Distribusi Anggaran (UC-07):</strong> Kebutuhan Pokok +Rp 250.000, Hiburan +Rp 150.000,
+                Tabungan +Rp 100.000.</li>
+              <li><strong>Distribusi Tabungan (UC-11):</strong> Saldo Tabungan Rp 100.000 otomatis dimasukkan ke target
+                "Laptop Baru". (Progress naik menjadi 1.25%).</li>
+            </ul>
+          </div>
+
+          <h3
+            style="color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.1rem;">
+            FASE 4: TRANSAKSI PENGELUARAN (5 - 6 Mei 2025)</h3>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">5. UC-06 Skenario A:
+            Catat Pengeluaran Manual</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; text-align: justify;">Sore harinya
+            setelah jadwal kuliah padat usai, Andi mampir ke minimarket Alfamart di dekat gerbang kampus. Ia membeli
+            beberapa kebutuhan dasar seperti sabun, air mineral, dan roti untuk sarapan besok. Tepat setelah membayar di
+            kasir, ia berdiri sejenak di depan pintu keluar, lalu langsung mencatat pengeluaran receh tersebut secara
+            manual ke dalam aplikasi agar tidak lupa.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/transactions/expense/manual
+{
+  "amount": 46000.0,
+  "category": "Kebutuhan Pokok",
+  "store": "Alfamart Margonda",
+  "date": "2025-05-05T15:30:00Z",
+  "items": ["Nasi kotak", "Air mineral", "Roti", "Sabun"]
+}</code></pre>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">6. PIPELINE OCR (UC-13
+            hingga UC-17)</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; text-align: justify;">Keesokan harinya
+            (Selasa), Andi dan teman-teman sekelasnya makan siang bersama di Warung Bu Sari yang letaknya persis di
+            belakang area parkir motor. Merasa malas jika harus mengetik panjang lebar nama menu dan harganya satu per
+            satu, Andi meminta struk cetak dari kasir warung. Ia mengarahkan kamera ponselnya ke struk tersebut,
+            memfotonya, dan membiarkan sistem OCR Cloud Vision serta keajaiban klasifikasi Gemini AI yang bekerja keras
+            mengekstrak daftar makanannya.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [GET] /api/v1/ocr/result/9921 (Hasil Draft pipeline UC-14 s/d UC-16)
+{
+  "status": "ready_for_review",
+  "data": {
+    "store_name": "Warung Bu Sari",
+    "date": "2025-05-06",
+    "total_amount": 27000.0, // OCR salah baca angka 5 jadi 0
+    "confidence_score": 0.88,
+    "items": [
+      { "name": "Nasi + Ayam Bakar", "price": 22000.0, "ai_category": "Kebutuhan Pokok" },
+      { "name": "Es Teh Manis", "price": 5000.0, "ai_category": "Kebutuhan Pokok" } // Salah harga
+    ]
+  }
+}</code></pre>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem;">Andi melakukan validasi manual (UC-17)
+            untuk mengoreksi harga Es Teh menjadi 5500 dan menyimpannya.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/transactions/expense/ocr-confirm
+{
+  "receipt_id": "9921",
+  "corrected_total": 27500.0,
+  "corrected_items": [
+    { "name": "Nasi + Ayam Bakar", "price": 22000.0, "category": "Kebutuhan Pokok" },
+    { "name": "Es Teh Manis", "price": 5500.0, "category": "Kebutuhan Pokok" }
+  ]
+}</code></pre>
+
+          <h3
+            style="color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.1rem;">
+            FASE 5: PELANGGARAN BATAS & NOTIFIKASI (8 Mei 2025)</h3>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">7. UC-10: Push Notifikasi
+            Peringatan Anggaran</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; text-align: justify;">Malam Jumat
+            adalah waktu santai bagi Andi. Ia sedang asyik bermain game online sambil mengobrol di <em>Discord</em>
+            dengan teman lamanya. Karena tergoda tawaran flash sale, Andi tak tahan untuk melakukan top-up dan membeli
+            <em>Skin Game</em> eksklusif seharga Rp 130.000. Ditambah lagi dengan es kopi susu senilai Rp 28.000 yang ia
+            beli tadi siang. Tanpa ia sadari, total pengeluarannya untuk bersenang-senang (Hiburan) menembus angka Rp
+            158.000. Tiba-tiba ponselnya bergetar hebat menampilkan notifikasi peringatan kritis dari FAST.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [PUSH EVENT] BUDGET_ALERT (WebSocket / FCM)
+{
+  "notification_id": "notif-502",
+  "type": "CRITICAL_OVERSPEND",
+  "category": "Hiburan",
+  "title": "Anggaran Jebol! 🚨",
+  "body": "Pengeluaran Hiburan Anda mencapai Rp 158.000 (105% dari limit Rp 150.000).",
+  "timestamp": "2025-05-08T20:15:00Z"
+}</code></pre>
+
+          <h3
+            style="color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.1rem;">
+            FASE 6: EVALUASI MINGGUAN (12 Mei 2025)</h3>
+          <p style="font-size: 0.88rem; color: var(--text2); line-height: 1.6; text-align: justify;">Satu minggu penuh
+            telah berlalu. Di hari Senin pagi yang cukup cerah, Andi kembali menerima transfer uang saku minggu kedua
+            dari ibunya. Setelah memasukkan data pemasukan tersebut ke sistem, rasa penasaran muncul. Sambil meminum teh
+            hangat di teras kosan, Andi membuka halaman Dashboard utama untuk menengok seberapa baik (atau buruk)
+            performa manajemen keuangannya selama seminggu ke belakang.</p>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">8. UC-18: Pantau
+            Dashboard & UC-22: Skor Kesehatan</strong>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [GET] /api/v1/dashboard/summary?period=monthly
+{
+  "total_income": 1000000.0, // 2x uang saku (Minggu 1 + Minggu 2)
+  "total_expense": 582900.0,
+  "net_balance": 417100.0,
+  "health_score": {
+    "score": 72,
+    "grade": "Cukup Baik",
+    "details": {
+      "savings_ratio_pts": 32, // Bagus (20%)
+      "consistency_pts": 38.7, // Sering input via OCR
+      "control_penalty": -2.0  // Kena penalti karena skin game
+    }
+  },
+  "saving_goals_progress": [
+    { "name": "Laptop Baru", "current": 200000.0, "pct": 2.5 }
+  ]
+}</code></pre>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">9. UC-19: Visualisasi
+            Grafik & UC-20: Insight AI Gemini</strong>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [GET] /api/v1/analytics/insights
+{
+  "charts": {
+    "pie_distribution": [
+      { "category": "Kebutuhan Pokok", "amount": 405450, "pct": 69.6 },
+      { "category": "Hiburan", "amount": 158000, "pct": 27.1 } // Warning visual di chart
+    ]
+  },
+  "ai_insight": "Hai Andi! Menabung 20% dari uang sakumu adalah langkah awal yang sangat hebat! 🌟 Sayangnya, pengeluaran Hiburanmu sedikit kebobolan minggu lalu. Coba terapkan aturan tunggu 24 jam sebelum beli item game, agar target Laptop barumu di Desember 2026 tidak terganggu. Semangat! 💪",
+  "generated_at": "2025-05-12T09:05:00Z"
+}</code></pre>
+
+          <h3
+            style="color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.1rem;">
+            FASE 7: PENUTUPAN BULAN (31 Mei 2025)</h3>
+
+          <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">10. UC-21: Profil
+            Keuangan & UC-23: Export PDF</strong>
+          <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem; text-align: justify;">Bulan Mei
+            akhirnya berada di penghujung hari. Sempat ditegur keras oleh notifikasi sistem akibat membeli skin game di
+            pertengahan bulan, Andi pun insaf dan berusaha keras menahan nafsu jajannya di sisa minggu. Pengorbanannya
+            berbuah manis: Skor kesehatannya perlahan merangkak naik dan persentase tabungan laptopnya terpantau sangat
+            sehat. Dengan perasaan bangga, Andi duduk tegak di depan meja belajarnya, menekan tombol ekspor PDF, dan
+            bersiap mengirimkan laporan akhir bulan tersebut ke WhatsApp ibunya sebagai bukti otentik bahwa ia mulai
+            belajar mandiri.</p>
+          <pre
+            style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [GET] /api/v1/profile/financial-stats
+{
+  "user": "Andi Pratama",
+  "behavior_stats": {
+    "avg_daily_expense": 41636.0,
+    "favorite_input_method": "OCR (57%)",
+    "final_monthly_score": 78 // Naik dari 72 karena Andi berhasil mengerem pengeluaran
+  }
+}
+
+// [GET] /api/v1/reports/export?format=pdf&month=05&year=2025
+// Mengembalikan data stream Binary (Content-Type: application/pdf)</code></pre>
+        </div>
+      </div>
+
+      <!-- TOC PANEL -->
+      <div class="diagram-panel active" id="panel-toc">
+        <div class="header"
+          style="background: linear-gradient(180deg, #1a1f2e 0%, #0d1117 100%); border-bottom: 1px solid var(--border); padding: 2rem 2rem 1.5rem 4.5rem; text-align: left;">
+          <div class="header-badge">Sequence Diagrams · v1.0 · 2025</div>
+          <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;"><span>FAST</span> — Financial Analysis &amp; System
+            Tracking</h1>
+          <p style="font-size: 0.85rem; color: var(--text2);">23 Use Case · Perjalanan Andi Pratama (Mei 2025)</p>
+        </div>
+        <div class="panel-header" style="border-top: none;">
+          <div class="panel-uc">Daftar Isi</div>
+          <div class="panel-title">Spesifikasi Use Case & Alur Teknis</div>
+          <div class="panel-meta">
+            <span class="tag tag-include">
+              <<include>> = 7 relasi
+            </span>
+            <span class="tag tag-extend">
+              <<extend>> = 6 relasi
+            </span>
+            <span class="tag tag-ai">AI/GenAI = 5 use case</span>
+          </div>
+        </div>
+        <div class="toc-panel">
+          <div class="relation-note"
+            style="margin-bottom: 2rem; border-left-color: var(--green); background: rgba(63, 185, 80, 0.03);">
+            <h3 style="color: var(--green); margin-bottom: 0.8rem; font-size: 1rem;">Skenario Perjalanan Andi Pratama
+            </h3>
+            <p style="font-size: 0.88rem; line-height: 1.7; color: var(--text2); text-align: justify;">
+              <strong>Andi Pratama</strong>, mahasiswa semester 3 Teknik Informatika, menggunakan sistem
+              <strong>FAST</strong> untuk mengelola uang saku mingguan Rp 500.000. Perjalanan dimulai dari registrasi
+              (UC-01), pengaturan alokasi 50/30/20 (UC-07), hingga penetapan target tabungan Laptop baru Rp 8jt (UC-11).
+              Setiap transaksi dicatat secara manual (UC-06A) atau via OCR (UC-13) untuk efisiensi. Sistem secara
+              otomatis membagi pemasukan ke pos anggaran dan tabungan, memberikan peringatan jika Andi overspend di
+              kategori Hiburan (UC-10), dan memberikan insight cerdas via Gemini AI (UC-20) untuk memastikan Andi tetap
+              disiplin mencapai target laptopnya di Desember 2026.
+            </p>
+          </div>
+          <div class="toc-grid" id="toc-grid"></div>
+        </div>
+      </div>
+
+      <!-- CLASS DIAGRAM PANEL -->
+      <div class="diagram-panel" id="panel-classdiagram">
+        <div class="panel-header">
+          <div class="panel-uc">Entity Model</div>
+          <div class="panel-title">Class Diagram & Pydantic DTOs (Andi's Version)</div>
+        </div>
+        <div class="diagram-body" style="padding: 20px; border-radius: 8px; overflow-x: auto; text-align: center;">
+          <pre class="mermaid" style="background: transparent; color: var(--text);">classDiagram
+    class User {
+        -int id
+        -string name
+        -string email
+        -string password_hash
+        -string google_id
+        -string created_at
+        +register()
+        +login()
+        +logout()
+        +update_profile()
+    }
+
+    class Transaction {
+        -int id
+        -int user_id
+        -string type
+        -float amount
+        -string category
+        -string store
+        -string date
+        -int receipt_id
+        +create()
+        +update()
+        +delete()
+    }
+
+    class BudgetAllocation {
+        -int id
+        -int user_id
+        -string category
+        -float percentage
+        -float warning_threshold_pct
+        +set_allocation()
+        +update_threshold()
+        +check_threshold()
+    }
+
+    class SavingGoal {
+        -int id
+        -int user_id
+        -string name
+        -float target_amount
+        -float current_amount
+        -float allocation_pct
+        -string estimated_completion_date
+        +create()
+        +deposit()
+        +get_progress()
+    }
+
+    class Notification {
+        -int id
+        -int user_id
+        -string type
+        -string message
+        -boolean is_read
+        -string created_at
+        +create_warning()
+        +mark_as_read()
+    }
+
+    class Item {
+        -string name
+        -float price
+        -string category
+    }
+
+    class OCRResponse {
+        -string store_name
+        -string date
+        -float total_amount
+        -List_Item items
+        -string category_summary
+        -float confidence_score
+        +validate_data()
+        +map_to_transaction()
+    }
+
+    class Receipt {
+        -int id
+        -int user_id
+        -string status
+        -string image_url
+        -string raw_text
+        +upload_image()
+        +get_ocr_result()
+    }
+
+    class AuthService {
+        +hashPassword()
+        +comparePassword()
+        +generateJWT()
+        +exchangeGoogleCode()
+    }
+
+    class OCRService {
+        +extractText()
+        +parseStructured()
+    }
+
+    class AIService {
+        +classifyItem()
+        +generateInsight()
+    }
+
+    class AIInsight {
+        -int id
+        -int user_id
+        -string period
+        -string insight_text
+        +generate()
+    }
+
+    class HealthScore {
+        -int user_id
+        -float score
+        -string grade
+        -string breakdown
+        +calculate()
+    }
+
+    class FinancialProfile {
+        -int user_id
+        -float avg_weekly_income
+        -float avg_weekly_expense
+        -float savings_rate
+        -string top_category
+        +get_profile()
+    }
+
+    class Dashboard {
+        -int user_id
+        +get_summary()
+        +get_allocation_status()
+        +get_saving_progress()
+    }
+
+    User "1" --> "*" Transaction : owns
+    User "1" --> "*" BudgetAllocation : manages
+    User "1" --> "*" SavingGoal : plans
+    User "1" --> "*" Notification : receives
+    User "1" --> "*" Receipt : uploads
+    User "1" --> "1" FinancialProfile : has
+    
+    Transaction "1" -- "0..1" Receipt : linked to
+    OCRResponse "1" *-- "*" Item : contains
+    Receipt ..> OCRService : processed
+    OCRService ..> OCRResponse : produces
+    AIService ..> AIInsight : generates
+    AIService ..> Item : classifies
+    HealthScore ..> User : evaluates
+    Dashboard ..> AIInsight : displays
+    Dashboard ..> HealthScore : displays
+        </pre>
+        </div>
+
+        <div class="relation-note"
+          style="margin: 2rem; text-align: left; background: rgba(88,166,255,0.03); border: 1px solid var(--border); border-left: 4px solid var(--accent);">
+          <h3 style="color: var(--accent); margin-bottom: 1rem; font-size: 1rem;">Keterangan Struktur Andi Pratama
+            Version</h3>
+          <p style="margin-bottom: 1.2rem; font-size: 0.85rem; color: var(--text2);">Diagram kelas ini mencerminkan
+            arsitektur sistem FAST yang digunakan dalam narasi perjalanan Andi Pratama:</p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div>
+              <strong style="color: #fff; display: block; margin-bottom: 0.6rem; font-size: 0.9rem;">1. Sinkronisasi
+                Narasi (Bulan Mei 2025)</strong>
+              <ul style="font-size: 0.82rem; padding-left: 1.2rem; color: var(--text2); line-height: 1.6;">
+                <li><span style="color: var(--accent);">User:</span> Entitas Andi Pratama dengan email kampus.</li>
+                <li><span style="color: var(--accent);">SavingGoal:</span> Target khusus "Laptop Baru" Rp 8jt dengan
+                  alokasi 20%.</li>
+                <li><span style="color: var(--accent);">Dashboard:</span> Titik pusat pemantauan mingguan Andi (UC-18).
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <strong style="color: #fff; display: block; margin-bottom: 0.6rem; font-size: 0.9rem;">2. Pipeline Data &
+                AI</strong>
+              <ul style="font-size: 0.82rem; padding-left: 1.2rem; color: var(--text2); line-height: 1.6;">
+                <li><strong>OCR Pipeline:</strong> Proses dari <code>Receipt</code> hingga <code>OCRResponse</code>
+                  (UC-13 s/d UC-17).</li>
+                <li><strong>AI Insight:</strong> Hasil analisis Gemini API terhadap pengeluaran Andi (UC-20).</li>
+                <li><strong>Financial Profile:</strong> Rekapitulasi perilaku Andi (Top Category, OCR usage 57%).</li>
+              </ul>
+            </div>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
+
+          <div style="text-align: justify;">
+            <strong style="color: var(--accent); display: block; margin-bottom: 0.8rem; font-size: 1rem;">Skenario
+              Integrasi Andi Pratama</strong>
+            <p style="font-size: 0.88rem; color: var(--text2); line-height: 1.8; margin-bottom: 1.5rem;">
+            </p>
+            <ol style="font-size: 0.85rem; color: var(--text2); line-height: 1.8; padding-left: 1.2rem;">
+              <li><strong>Input Awal:</strong> Budi mengunggah foto struk senilai Rp 150.000. Data masuk ke entitas
+                <code>Receipt</code>.</li>
+              <li><strong>Komunikasi OCR:</strong> Kelas <code>Receipt</code> memicu metode <code>process_ocr()</code>
+                yang menggunakan <code>OCRResponse</code>. Di sini terjadi relasi <strong>Dependensi</strong> di mana
+                satu kelas menggunakan layanan kelas lain untuk validasi.</li>
+              <li><strong>Pembentukan Item:</strong> Melalui relasi <strong>Komposisi</strong>, sistem secara otomatis
+                membuat beberapa entitas <code>ReceiptItem</code> (misal: Nasi Ayam, Jus Jeruk). Karena ini komposisi,
+                jika <code>Receipt</code> dihapus, maka <code>ReceiptItem</code> tersebut juga akan hilang.</li>
+              <li><strong>Sinkronisasi Transaksi:</strong> Data yang sudah valid kemudian "mengalir" menjadi entitas
+                <code>Transaction</code>. Hubungan <strong>Asosiasi</strong> memastikan transaksi ini tercatat atas nama
+                <code>User</code> (Budi).</li>
+              <li><strong>Update Real-time:</strong> <code>Transaction</code> baru ini secara otomatis memicu metode
+                <code>update_balance()</code> pada <code>BudgetRemaining</code> untuk memotong kuota anggaran makan
+                siang Andi hari itu.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <!-- UC PANELS (generated by JS) -->
 
   </main>
-</div>
+  </div>
 
-<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+  <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      securityLevel: 'loose',
+      sequence: {
+        useMaxWidth: true,
+        showSequenceNumbers: false,
+        actorMargin: 35,
+        messageMargin: 30,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageFontSize: 13,
+        actorFontSize: 14,
+        noteFontSize: 13,
+        mirrorActors: true,
+        actorHeight: 35,
+        actorPadding: 15,
+        labelBoxBkgColor: '#161b22',
+        labelBoxBorderColor: '#444c56'
+      },
+      themeVariables: {
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        primaryColor: '#161b22',
+        primaryTextColor: '#adbac7',
+        primaryBorderColor: '#444c56',
+        lineColor: '#444c56',
+        secondaryColor: '#0d1117',
+        tertiaryColor: '#0d1117',
+        noteBkgColor: '#2d333b',
+        noteTextColor: '#adbac7',
+        noteBorderColor: '#2d333b',
+        actorBkg: '#161b22',
+        actorBorder: '#444c56',
+        actorTextColor: '#adbac7',
+        actorLineColor: '#444c56',
+        signalColor: '#444c56',
+        signalTextColor: '#adbac7',
+        labelBoxBkgColor: '#161b22',
+        labelBoxBorderColor: '#444c56',
+        loopTextColor: '#adbac7',
+        altSectionBkgColor: 'transparent',
+        altSectionBorderColor: '#444c56'
+      }
+    });
+  </script>
 </body>
+
 </html>
