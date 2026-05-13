@@ -1025,10 +1025,6 @@ function showPanel(id) {
   }
 }
 
-function toggleSidebar() {
-  document.body.classList.toggle('sidebar-open');
-}
-
 // Scroll to top button
 window.addEventListener('scroll', () => {
   document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 300);
