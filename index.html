@@ -41,137 +41,106 @@
         </div>
       </div>
 
-      <!-- Tree styles directly injected or in style.css, we use classes here -->
-      <div class="tree-root">
-        <details class="tree-node">
-          <summary class="tree-folder"><span class="folder-icon">📁</span> [A — AUTENTIKASI & ONBOARDING]</summary>
-          <div class="tree-children">
-            <div class="tree-item nav-item" onclick="showPanel('uc01')" id="nav-uc01"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-01</span><span>Registrasi via Email</span></div>
-            <div class="tree-item nav-item" onclick="showPanel('uc02')" id="nav-uc02"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-02</span><span>Registrasi via Google</span></div>
-            <div class="tree-item nav-item" onclick="showPanel('uc03')" id="nav-uc03"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-03</span><span>Login via Email</span></div>
-            <div class="tree-item nav-item" onclick="showPanel('uc04')" id="nav-uc04"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-04</span><span>Login via Google</span></div>
-            <div class="tree-item nav-item" onclick="showPanel('uc25')" id="nav-uc25"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-25</span><span>Setup Awal & Catat Pemasukan Pertama</span></div>
-          </div>
-        </details>
+      <div class="sidebar-content">
+        <div class="sidebar-section">AUTH & AKUN</div>
+        <div class="nav-item" onclick="showPanel('uc01')" id="nav-uc01">
+          <span class="nav-num">01</span><span>Registrasi via Email</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc02')" id="nav-uc02">
+          <span class="nav-num">02</span><span>Registrasi via Google</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc03')" id="nav-uc03">
+          <span class="nav-num">03</span><span>Login via Email</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc04')" id="nav-uc04">
+          <span class="nav-num">04</span><span>Login via Google</span>
+        </div>
 
-        <details class="tree-node">
-          <summary class="tree-folder"><span class="folder-icon">📁</span> [B-E — TRANSAKSI & ANGGARAN]</summary>
-          <div class="tree-children">
-            <details class="tree-node">
-              <summary class="tree-item nav-item"
-                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc05')" id="nav-uc05">
-                <span class="file-icon">📄</span> <span class="nav-num">UC-05</span><span>Catat Pemasukan</span>
-              </summary>
-              <div class="tree-children">
-                <details class="tree-node">
-                  <summary class="tree-item nav-item"
-                    onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc07')" id="nav-uc07">
-                    <span class="file-icon">📄</span> <span class="nav-num">UC-07</span><span>Atur Alokasi
-                      (50/30/20)</span>
-                  </summary>
-                  <div class="tree-children">
-                    <div class="tree-item nav-item" onclick="showPanel('uc08')" id="nav-uc08"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-08</span><span>Rekomendasi Alokasi</span>
-                    </div>
-                  </div>
-                </details>
-                <details class="tree-node">
-                  <summary class="tree-item nav-item"
-                    onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc11')" id="nav-uc11">
-                    <span class="file-icon">📄</span> <span class="nav-num">UC-11</span><span>Setup Target
-                      Tabungan</span>
-                  </summary>
-                  <div class="tree-children">
-                    <div class="tree-item nav-item" onclick="showPanel('uc12')" id="nav-uc12"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-12</span><span>Progress Bar Tabungan</span>
-                    </div>
-                    <div class="tree-item nav-item" onclick="showPanel('uc24')" id="nav-uc24"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-24</span><span>Toggle Mode Tabungan</span>
-                    </div>
-                  </div>
-                </details>
-              </div>
-            </details>
+        <div class="sidebar-section">TRANSAKSI</div>
+        <div class="nav-item" onclick="showPanel('uc05')" id="nav-uc05">
+          <span class="nav-num">05</span><span>Catat Pemasukan</span>
+          <div class="nav-badges"><span class="nb nb-inc">INC</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc06')" id="nav-uc06">
+          <span class="nav-num">06</span><span>Catat Pengeluaran</span>
+          <div class="nav-badges"><span class="nb nb-ext">EXT</span><span class="nb nb-ai">AI</span></div>
+        </div>
 
-            <details class="tree-node">
-              <summary class="tree-item nav-item"
-                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc06')" id="nav-uc06">
-                <span class="file-icon">📄</span> <span class="nav-num">UC-06</span><span>Catat Pengeluaran</span>
-              </summary>
-              <div class="tree-children">
-                <details class="tree-node">
-                  <summary class="tree-item nav-item"
-                    onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc09')" id="nav-uc09">
-                    <span class="file-icon">📄</span> <span class="nav-num">UC-09</span><span>Atur Threshold</span>
-                  </summary>
-                  <div class="tree-children">
-                    <div class="tree-item nav-item" onclick="showPanel('uc10')" id="nav-uc10"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-10</span><span>Push Notifikasi
-                        Warning</span></div>
-                  </div>
-                </details>
-                <details class="tree-node">
-                  <summary class="tree-folder"><span class="folder-icon">📁</span> <span
-                      class="nav-num">F</span><span>Pipeline OCR Struk</span></summary>
-                  <div class="tree-children">
-                    <div class="tree-item nav-item" onclick="showPanel('uc13')" id="nav-uc13"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-13</span><span>Upload Struk</span></div>
-                    <div class="tree-item nav-item" onclick="showPanel('uc14')" id="nav-uc14"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-14</span><span>Ekstraksi OCR</span></div>
-                    <div class="tree-item nav-item" onclick="showPanel('uc15')" id="nav-uc15"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-15</span><span>Parsing Regex</span></div>
-                    <div class="tree-item nav-item" onclick="showPanel('uc16')" id="nav-uc16"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-16</span><span>Klasifikasi GenAI</span>
-                    </div>
-                    <div class="tree-item nav-item" onclick="showPanel('uc17')" id="nav-uc17"><span
-                        class="file-icon">📄</span> <span class="nav-num">UC-17</span><span>Validasi Manual</span></div>
-                  </div>
-                </details>
-              </div>
-            </details>
-          </div>
-        </details>
+        <div class="sidebar-section">ANGGARAN</div>
+        <div class="nav-item" onclick="showPanel('uc07')" id="nav-uc07">
+          <span class="nav-num">07</span><span>Atur Alokasi Anggaran</span>
+          <div class="nav-badges"><span class="nb nb-inc">INC</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc08')" id="nav-uc08">
+          <span class="nav-num">08</span><span>Rekomendasi Alokasi</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc09')" id="nav-uc09">
+          <span class="nav-num">09</span><span>Atur Batas Pengeluaran</span>
+          <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc10')" id="nav-uc10">
+          <span class="nav-num">10</span><span>Notifikasi Peringatan</span>
+        </div>
 
-        <details class="tree-node">
-          <summary class="tree-folder"><span class="folder-icon">📁</span> [H-I — DASHBOARD & ANALITIK]</summary>
-          <div class="tree-children">
-            <details class="tree-node">
-              <summary class="tree-item nav-item"
-                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc18')" id="nav-uc18">
-                <span class="file-icon">📄</span> <span class="nav-num">UC-18</span><span>Pantau Dashboard</span>
-              </summary>
-              <div class="tree-children">
-                <div class="tree-item nav-item" onclick="showPanel('uc20')" id="nav-uc20-2"><span
-                    class="file-icon">📄</span> <span class="nav-num">UC-20</span><span>Insight AI Gemini</span></div>
-                <div class="tree-item nav-item" onclick="showPanel('uc22')" id="nav-uc22-2"><span
-                    class="file-icon">📄</span> <span class="nav-num">UC-22</span><span>Skor Kesehatan</span></div>
-              </div>
-            </details>
+        <div class="sidebar-section">TABUNGAN</div>
+        <div class="nav-item" onclick="showPanel('uc11')" id="nav-uc11">
+          <span class="nav-num">11</span><span>Target Tabungan</span>
+          <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc12')" id="nav-uc12">
+          <span class="nav-num">12</span><span>Progress Tabungan</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc24')" id="nav-uc24">
+          <span class="nav-num">24</span><span>Toggle Mode Tabungan</span>
+        </div>
 
-            <details class="tree-node">
-              <summary class="tree-item nav-item"
-                onclick="if(!event.target.classList.contains('folder-icon')) showPanel('uc19')" id="nav-uc19">
-                <span class="file-icon">📄</span> <span class="nav-num">UC-19</span><span>Visualisasi Grafik</span>
-              </summary>
-              <div class="tree-children">
-                <div class="tree-item nav-item" onclick="showPanel('uc20')" id="nav-uc20-3"><span
-                    class="file-icon">📄</span> <span class="nav-num">UC-20</span><span>Insight AI Gemini</span></div>
-              </div>
-            </details>
+        <div class="sidebar-section">STRUK & OCR</div>
+        <div class="nav-item" onclick="showPanel('uc13')" id="nav-uc13">
+          <span class="nav-num">13</span><span>Upload Gambar Struk</span>
+          <div class="nav-badges"><span class="nb nb-inc">INC</span><span class="nb nb-ai">AI</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc14')" id="nav-uc14">
+          <span class="nav-num">14</span><span>Ekstraksi Teks OCR</span>
+          <div class="nav-badges"><span class="nb nb-ai">AI</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc15')" id="nav-uc15">
+          <span class="nav-num">15</span><span>Strukturisasi Data</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc16')" id="nav-uc16">
+          <span class="nav-num">16</span><span>Klasifikasi Kategori</span>
+          <div class="nav-badges"><span class="nb nb-ai">AI</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc17')" id="nav-uc17">
+          <span class="nav-num">17</span><span>Validasi Manual</span>
+        </div>
 
-            <div class="tree-item nav-item" onclick="showPanel('uc21')" id="nav-uc21"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-21</span><span>Rekap Bulanan Wrapped</span></div>
-            <div class="tree-item nav-item" onclick="showPanel('uc22')" id="nav-uc22"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-22</span><span>Skor Kesehatan</span></div>
-            <div class="tree-item nav-item" onclick="showPanel('uc23')" id="nav-uc23"><span class="file-icon">📄</span>
-              <span class="nav-num">UC-23</span><span>Profil & Export PDF</span></div>
-          </div>
-        </details>
+        <div class="sidebar-section">DASHBOARD & ANALITIK</div>
+        <div class="nav-item" onclick="showPanel('uc18')" id="nav-uc18">
+          <span class="nav-num">18</span><span>Pantau Dashboard</span>
+          <div class="nav-badges"><span class="nb nb-ext">EXT</span><span class="nb nb-ai">AI</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc19')" id="nav-uc19">
+          <span class="nav-num">19</span><span>Visualisasi Grafik</span>
+          <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc20')" id="nav-uc20">
+          <span class="nav-num">20</span><span>Insight AI GenAI</span>
+          <div class="nav-badges"><span class="nb nb-ext">EXT</span><span class="nb nb-ai">AI</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc21')" id="nav-uc21">
+          <span class="nav-num">21</span><span>Rekap Bulanan Wrapped</span>
+          <div class="nav-badges"><span class="nb nb-ai">AI</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc22')" id="nav-uc22">
+          <span class="nav-num">22</span><span>Skor Kesehatan</span>
+          <div class="nav-badges"><span class="nb nb-ext">EXT</span></div>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc23')" id="nav-uc23">
+          <span class="nav-num">23</span><span>Profil & Export PDF</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('uc25')" id="nav-uc25">
+          <span class="nav-num">25</span><span>Setup Awal</span>
+        </div>
       </div>
     </nav>
 
