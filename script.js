@@ -134,7 +134,7 @@ sequenceDiagram
   {
     id: 'uc05', uc: 'UC-05', title: 'Catat Pemasukan',
     actors: ["User","Frontend","Backend","Database"],
-    relation: '<<include>> UC-07, UC-11',
+    relation: '<<include>> UC-07, UC-08, UC-09, UC-11',
     note: 'Pencatatan pemasukan bulanan (uang saku, beasiswa, dll). Backend menyimpan transaksi lalu memicu auto-alokasi 4 kategori: 50% Pokok / 30% Hiburan / 15% Tabungan / 5% Darurat (mode ON), atau 60% Pokok / 30% Hiburan / 10% Darurat (mode tabungan OFF).',
     code: `
 sequenceDiagram
@@ -173,8 +173,8 @@ sequenceDiagram
   {
     id: 'uc06', uc: 'UC-06', title: 'Catat Pengeluaran (Manual)',
     actors: ["User","Frontend","Backend","Database","AIService"],
-    relation: '<<extend>> UC-10, UC-13',
-    note: 'Pencatatan pengeluaran manual. Jika saldo kategori habis, sistem otomatis menggunakan Dana Darurat (5%/10% dari pemasukan) sebagai buffer. Notifikasi dikirim jika anggaran mencapai 80% atau 100%.',
+    relation: '<<extend>> UC-10',
+    note: 'Pencatatan pengeluaran manual. Jika saldo kategori habis, sistem otomatis menggunakan Dana Darurat (5%/10% dari pemasukan) sebagai buffer. Notifikasi dikirim jika anggaran mencapai 100% (limit tercapai).',
     code: `
 sequenceDiagram
     participant User as User (Browser)
@@ -213,7 +213,7 @@ sequenceDiagram
     DB-->>Server: Return expense.id
 
     Server->>Server: Hitung % terpakai vs alokasi (re-evaluasi)
-    alt Pengeluaran >= threshold (80% atau 100%)
+    alt Pengeluaran >= 100% limit kategori
         Note over Server, DB: <<extend>> Notifikasi Peringatan (UC-10)
         Server->>DB: INSERT INTO notifications (type, category, threshold_pct)
         DB-->>Server: OK
@@ -265,7 +265,7 @@ sequenceDiagram
     id: 'uc08', uc: 'UC-08', title: 'Validasi & Kalkulasi Target Tabungan',
     actors: ["Backend","Database"],
     relation: '<<include>> dari UC-07',
-    note: 'Memvalidasi apakah target tabungan realistis berdasarkan pemasukan dan deadline. Menghitung jumlah yang harus ditabung per bulan dan per hari. Batas maksimal tabungan adalah 15% dari pemasukan bulanan.',
+    note: 'Memvalidasi apakah target tabungan realistis berdasarkan pemasukan dan deadline. Menghitung jumlah yang harus ditabung per bulan dan per hari. Batas maksimal tabungan adalah 15% dari pemasukan bulanan. Jika melebihi batas, sistem menolak dan menyarankan deadline yang lebih realistis.',
     code: `
 sequenceDiagram
     participant Server as Backend (REST API)
@@ -274,31 +274,24 @@ sequenceDiagram
     Note over Server, DB: Validasi & Kalkulasi Target Tabungan [include UC-07]
 
     Server->>DB: SELECT target_amount, deadline, current_amount FROM saving_goals WHERE status='active'
-    DB-->>Server: Return data target (target: 8jt, deadline: 10 bln lagi, current: 0)
+    DB-->>Server: Return data target (target, deadline, current)
 
     Server->>Server: Hitung months_remaining = DATEDIFF(deadline, NOW()) / 30
-    Server->>Server: Validasi: months_remaining >= 10 (batas minimal)
+    Server->>Server: Hitung monthly_saving_needed = (target - current) / months_remaining
+    Server->>Server: Hitung daily_saving = monthly_saving_needed / 30
 
-    alt months_remaining < 10
-        Note over Server: Deadline terlalu dekat! Minimal 10 bulan dari sekarang
-        Server->>DB: INSERT INTO notifications (type='deadline_warning')
+    Server->>DB: SELECT monthly_income FROM user_settings WHERE user_id = ?
+    DB-->>Server: Return monthly_income
+    Server->>Server: Hitung max_allowed = 15% x monthly_income
+
+    alt monthly_saving_needed > max_allowed (melebihi 15% pemasukan)
+        Server->>DB: INSERT INTO notifications (type='saving_too_heavy')
         DB-->>Server: OK
-    else months_remaining >= 10
-        Server->>Server: Hitung monthly_saving_needed = (target - current) / months_remaining
-        Server->>Server: Hitung daily_saving = monthly_saving_needed / 30
-        Server->>DB: SELECT monthly_income FROM user_settings WHERE user_id = ?
-        DB-->>Server: Return monthly_income (Rp 2.000.000)
-        Server->>Server: Hitung max_allowed = 15% x monthly_income = Rp 300.000
-
-        alt monthly_saving_needed > max_allowed (target terlalu berat)
-            Server->>DB: INSERT INTO notifications (type='saving_too_heavy')
-            DB-->>Server: OK
-            Note over Server: Saran: perpanjang deadline atau turunkan target
-        else Kalkulasi valid dan realistis
-            Server->>DB: UPDATE saving_goals SET monthly_saving=?, daily_saving=?, months_remaining=?
-            DB-->>Server: OK
-            Note over Server: Target OK — Rp 300rb/bln | Rp 10rb/hari
-        end
+        Note over Server: Tolak target & saran: perpanjang deadline atau turunkan nominal
+    else Kalkulasi valid dan realistis
+        Server->>DB: UPDATE saving_goals SET monthly_saving=?, daily_saving=?, months_remaining=?
+        DB-->>Server: OK
+        Note over Server: Target OK — tabungan/bln & tabungan/hari sesuai kemampuan
     end
 
     Server-->>Server: Return kalkulasi ke UC-05/UC-11`
@@ -307,63 +300,57 @@ sequenceDiagram
     id: 'uc09', uc: 'UC-09', title: 'Penetapan Threshold Peringatan',
     actors: ["Backend","Database"],
     relation: '<<include>> dari UC-05',
-    note: 'Menetapkan batas threshold default 80% untuk 4 kategori (Pokok, Hiburan, Tabungan, Darurat). Dana Darurat memiliki threshold khusus 50% penggunaan sebagai tanda bahwa cadangan sudah menipis.',
+    note: 'Menetapkan batas threshold 100% untuk kategori pengeluaran (Pokok, Hiburan). Notifikasi dikirim saat limit tercapai. Dana Darurat dimonitor terpisah saat digunakan sebagai buffer.',
     code: `
 sequenceDiagram
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over Server, DB: Penetapan Threshold 4 Kategori [include UC-05]
+    Note over Server, DB: Penetapan Threshold Kategori Pengeluaran [include UC-05]
 
-    loop Untuk setiap kategori (Pokok, Hiburan, Tabungan, Darurat)
-        Server->>DB: UPDATE budget_allocations SET warning_threshold_pct = 80 WHERE category = ?
-        DB-->>Server: OK
+    loop Untuk setiap kategori pengeluaran (Pokok, Hiburan)
         Server->>DB: SELECT SUM(amount) FROM transactions WHERE category = ?
         DB-->>Server: Return total pengeluaran kategori
+        Server->>DB: SELECT allocated_amount FROM budget_remaining WHERE category = ?
+        DB-->>Server: Return alokasi kategori
         Server->>Server: Evaluasi: (total / alokasi) x 100
-        alt Pengeluaran >= 80% threshold
-            Server->>Server: Panggil UC-10 (Notifikasi Peringatan Kuning)
-        end
-        alt Pengeluaran >= 100% threshold
-            Server->>Server: Panggil UC-10 (Notifikasi Overspend Merah)
+        alt Pengeluaran >= 100% (Limit Tercapai)
+            Server->>Server: Panggil UC-10 (Notifikasi Limit Tercapai)
         end
     end
 
-    Note over Server, DB: Khusus Dana Darurat: Threshold Penggunaan 50%
+    Note over Server, DB: Monitoring Dana Darurat (terpisah)
     Server->>DB: SELECT balance, initial_balance FROM emergency_fund WHERE user_id = ?
-    DB-->>Server: Return { balance: 80000, initial_balance: 200000 }
-    Server->>Server: Hitung: penggunaan = (initial - balance) / initial x 100
-    alt Dana darurat terpakai > 50%
-        Server->>Server: Panggil UC-10 (Notifikasi Dana Darurat Menipis)
+    DB-->>Server: Return { balance, initial_balance }
+    Server->>Server: Cek apakah Dana Darurat telah digunakan
+    alt Dana Darurat terpakai (balance < initial)
+        Server->>Server: Panggil UC-10 (Notifikasi Dana Darurat Terpakai)
     end`
   },
   {
     id: 'uc10', uc: 'UC-10', title: 'Notifikasi Peringatan Anggaran',
     actors: ["Frontend","Backend","Database"],
     relation: '<<extend>> dari UC-06',
-    note: 'Push notifikasi Real-Time (WebSocket) ke pengguna dengan 3 level: Kuning (80% terpakai), Merah (100% overspend), dan Oranye (dana darurat > 50% terpakai). Badge notifikasi berkurang otomatis saat dibaca.',
+    note: 'Push notifikasi Real-Time (WebSocket) ke pengguna saat limit kategori tercapai (100%) dan saat Dana Darurat digunakan. Badge notifikasi berkurang otomatis saat dibaca.',
     code: `
 sequenceDiagram
     participant UI as Frontend (Web App)
     participant Server as Backend (REST API)
     participant DB as Database (SQL)
 
-    Note over UI, DB: Notifikasi Peringatan Real-Time (3 Level)
+    Note over UI, DB: Notifikasi Peringatan Real-Time
 
     Server->>Server: Deteksi kondisi threshold terlampaui
     Server->>DB: INSERT INTO notifications (type, category, message, threshold_pct)
     DB-->>Server: Return notification.id
 
-    alt Anggaran >= 80% (Peringatan Kuning)
-        Server-)UI: Push WebSocket: Toast Kuning
-        UI-->>UI: Tampilkan: Hati-hati! [Kategori] hampir habis (80%)
-    else Anggaran >= 100% (Overspend Merah)
+    alt Anggaran >= 100% (Limit Tercapai)
         Server-)UI: Push WebSocket: Toast Merah
-        UI-->>UI: Tampilkan: OVERSPEND! Anggaran [Kategori] habis
+        UI-->>UI: Tampilkan: Limit Tercapai! Anggaran [Kategori] habis
         UI-->>UI: Sistem menggunakan Dana Darurat sebagai buffer
-    else Dana Darurat > 50% terpakai (Peringatan Oranye)
+    else Dana Darurat Terpakai
         Server-)UI: Push WebSocket: Toast Oranye
-        UI-->>UI: Tampilkan: Dana Darurat menipis! Segera kontrol pengeluaran
+        UI-->>UI: Tampilkan: Dana Darurat digunakan! Segera kontrol pengeluaran
     end
 
     Note over UI, DB: Saat user membuka/membaca notifikasi
@@ -377,7 +364,7 @@ sequenceDiagram
     id: 'uc11', uc: 'UC-11', title: 'Setup & Auto-Alokasi Target Tabungan',
     actors: ["Backend","Database"],
     relation: '<<include>> dari UC-05',
-    note: 'Mengelola target tabungan berbasis deadline. Setiap pemasukan masuk, sistem mengalokasikan 15% ke tabungan dan menghitung ulang daily_saving serta estimasi ketercapaian. Batas minimal deadline adalah 10 bulan.',
+    note: 'Mengelola target tabungan berbasis deadline. Setiap pemasukan masuk, sistem mengalokasikan 15% ke tabungan dan menghitung ulang daily_saving serta estimasi ketercapaian. Validasi berdasarkan batas maksimal 15% dari pemasukan bulanan.',
     code: `
 sequenceDiagram
     participant Server as Backend (REST API)
@@ -386,15 +373,19 @@ sequenceDiagram
     Note over Server, DB: Auto-Alokasi Target Tabungan Deadline-Based [include UC-05]
 
     Server->>DB: SELECT * FROM saving_goals WHERE user_id = ? AND status = 'active'
-    DB-->>Server: Return { target: 8000000, deadline: '2027-03-01', current: 500000 }
+    DB-->>Server: Return { target, deadline, current_amount }
 
     Server->>Server: Hitung months_remaining = DATEDIFF(deadline, NOW()) / 30
+    Server->>Server: Hitung monthly_saving_needed = (target - current) / months_remaining
+    Server->>DB: SELECT monthly_income FROM user_settings WHERE user_id = ?
+    DB-->>Server: Return monthly_income
+    Server->>Server: Hitung max_allowed = 15% x monthly_income
 
-    alt months_remaining < 10
-        Note over Server: Deadline < 10 bulan! Sistem peringatkan user
-        Server->>DB: INSERT INTO notifications (type='deadline_too_close')
+    alt monthly_saving_needed > max_allowed (melebihi 15% pemasukan)
+        Note over Server: Target tidak realistis! Saran: perpanjang deadline
+        Server->>DB: INSERT INTO notifications (type='saving_unrealistic')
         DB-->>Server: OK
-    else months_remaining >= 10
+    else Target realistis (dalam batas 15%)
         Note over Server, DB: Proses Deposit 15% dari Pemasukan Masuk
         Server->>Server: Hitung deposit = 15% x income_amount
         Server->>DB: UPDATE saving_goals SET current_amount += deposit
@@ -863,7 +854,7 @@ sequenceDiagram
     Server->>DB: SELECT budget_summary & pemasukan_aktif
     DB-->>Server: Data Anggaran
     
-    Server->>DB: UPDATE budget_remaining (recalculate 50/30/20 vs 60/30/10)
+    Server->>DB: UPDATE budget_remaining (recalculate 50/30/15/5 vs 60/30/10)
     DB-->>Server: OK
 
     Server-->>UI: 200 OK { new_saving_mode, new_allocations }
@@ -873,7 +864,7 @@ sequenceDiagram
     id: 'uc25', uc: 'UC-25', title: 'Setup Awal & Catat Pemasukan Pertama',
     actors: ["User","Frontend","Backend","Database"],
     relation: '<<extend>> UC-01, UC-02',
-    note: 'Onboarding muncul sekali setelah registrasi. User mengisi pemasukan bulanan, memilih aktif/nonaktif tabungan, dan jika aktif: input nama target, nominal, dan deadline (minimal 10 bulan). Setelah konfirmasi, pemasukan pertama langsung dicatat dan sistem membagi saldo ke 4 kategori alokasi secara otomatis (seperti UC-05).',
+    note: 'Onboarding muncul sekali setelah registrasi. User mengisi pemasukan bulanan, memilih aktif/nonaktif tabungan, dan jika aktif: input nama target, nominal, dan deadline. Sistem memvalidasi bahwa tabungan tidak melebihi 15% pemasukan bulanan. Setelah konfirmasi, pemasukan pertama langsung dicatat dan sistem membagi saldo ke 4 kategori alokasi secara otomatis (seperti UC-05).',
     code: `
 sequenceDiagram
     participant User as User (Browser)
@@ -889,7 +880,7 @@ sequenceDiagram
 
     Note over User, UI: Jika ON: Setup Target (Nama, Nominal, Deadline)
     User->>UI: Input Target Tabungan & Deadline
-    UI->>UI: Validasi & Kalkulasi Target (Min. 10 bulan)
+    UI->>UI: Validasi & Kalkulasi Target (maks 15% dari pemasukan)
 
     User->>UI: Klik "Mulai Gunakan FAST"
     UI->>Server: POST /api/onboarding { income, mode, goal? }

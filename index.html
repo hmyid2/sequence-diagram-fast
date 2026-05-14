@@ -213,7 +213,7 @@
           <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">2. UC-07: Atur Alokasi
             Anggaran & UC-08: Rekomendasi Alokasi</strong>
           <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem;">Andi mengatur alokasi mingguan
-            menggunakan aturan 50/30/20. Backend menjalankan UC-08 untuk memvalidasi apakah persentase ini sehat.</p>
+            menggunakan aturan 50/30/15/5 (Pokok/Hiburan/Tabungan/Darurat). Backend menjalankan UC-08 untuk memvalidasi apakah persentase ini sehat.</p>
           <pre
             style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/budgets/allocation
 // Request
@@ -222,7 +222,8 @@
   "allocations": [
     { "category": "Kebutuhan Pokok", "percentage": 50.0 },
     { "category": "Hiburan", "percentage": 30.0 },
-    { "category": "Tabungan", "percentage": 20.0 }
+    { "category": "Tabungan", "percentage": 15.0 },
+    { "category": "Dana Darurat", "percentage": 5.0 }
   ]
 }
 
@@ -232,14 +233,14 @@
   "recommendation": {
     "is_healthy": true,
     "is_healthy": true,
-    "message": "Alokasi 50/30/20 sangat ideal untuk profil mahasiswa."
+    "message": "Alokasi 50/30/15/5 sangat ideal untuk profil mahasiswa."
   }
 }</code></pre>
 
           <strong style="color: #fff; font-size: 0.95rem; display: block; margin-top: 1.5rem;">3. UC-11: Buat Target
             Tabungan & UC-12: Progress Bar</strong>
           <p style="font-size: 0.85rem; color: var(--text2); margin-top: 0.5rem;">Andi memasukkan impiannya membeli
-            laptop. Sistem langsung mengkalkulasi estimasi waktu pencapaian berdasarkan alokasi 20% dari estimasi
+            laptop. Sistem langsung mengkalkulasi estimasi waktu pencapaian berdasarkan alokasi 15% dari estimasi
             pemasukan rata-rata mingguan.</p>
           <pre
             style="background: #161b22; padding: 1.2rem; border-radius: 8px; color: #e6edf3; font-size: 0.85rem; overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border);"><code>// [POST] /api/v1/savings/goals
@@ -247,7 +248,7 @@
 {
   "name": "Laptop Baru untuk Kuliah",
   "target_amount": 8000000.0,
-  "auto_allocate_pct": 20.0
+  "auto_allocate_pct": 15.0
 }
 
 // Response (201 Created) - Termasuk hasil kalkulasi UC-12
@@ -256,7 +257,7 @@
   "name": "Laptop Baru untuk Kuliah",
   "current_amount": 0.0,
   "progress_pct": 0.0,
-  "estimated_completion_date": "2027-01-15", // Kalkulasi: Butuh 20 bulan
+  "estimated_completion_date": "2027-08-01", // Kalkulasi: Butuh ~27 bulan (15% x Rp500rb/minggu = Rp75rb/minggu)
   "status": "Active"
 }</code></pre>
 
@@ -285,10 +286,10 @@
               dan mengeksekusi trigger secara internal:</p>
             <ul
               style="font-size: 0.85rem; color: var(--text2); padding-left: 1.5rem; margin-top: 0.5rem; line-height: 1.6;">
-              <li><strong>Distribusi Anggaran (UC-07):</strong> Kebutuhan Pokok +Rp 250.000, Hiburan +Rp 150.000,
-                Tabungan +Rp 100.000.</li>
-              <li><strong>Distribusi Tabungan (UC-11):</strong> Saldo Tabungan Rp 100.000 otomatis dimasukkan ke target
-                "Laptop Baru". (Progress naik menjadi 1.25%).</li>
+              <li><strong>Distribusi Anggaran (UC-07):</strong> Kebutuhan Pokok +Rp 250.000 (50%), Hiburan +Rp 150.000 (30%),
+                Tabungan +Rp 75.000 (15%), Dana Darurat +Rp 25.000 (5%).</li>
+              <li><strong>Distribusi Tabungan (UC-11):</strong> Saldo Tabungan Rp 75.000 otomatis dimasukkan ke target
+                "Laptop Baru". (Progress naik menjadi 0.94%).</li>
             </ul>
           </div>
 
@@ -393,13 +394,13 @@
     "score": 72,
     "grade": "Cukup Baik",
     "details": {
-      "savings_ratio_pts": 32, // Bagus (20%)
+      "savings_ratio_pts": 32, // Bagus (15%)
       "consistency_pts": 38.7, // Sering input via OCR
       "control_penalty": -2.0  // Kena penalti karena skin game
     }
   },
   "saving_goals_progress": [
-    { "name": "Laptop Baru", "current": 200000.0, "pct": 2.5 }
+    { "name": "Laptop Baru", "current": 150000.0, "pct": 1.88 }
   ]
 }</code></pre>
 
@@ -414,7 +415,7 @@
       { "category": "Hiburan", "amount": 158000, "pct": 27.1 } // Warning visual di chart
     ]
   },
-  "ai_insight": "Hai Andi! Menabung 20% dari uang sakumu adalah langkah awal yang sangat hebat! 🌟 Sayangnya, pengeluaran Hiburanmu sedikit kebobolan minggu lalu. Coba terapkan aturan tunggu 24 jam sebelum beli item game, agar target Laptop barumu di Desember 2026 tidak terganggu. Semangat! 💪",
+  "ai_insight": "Hai Andi! Menabung 15% dari uang sakumu adalah langkah awal yang sangat hebat! 🌟 Sayangnya, pengeluaran Hiburanmu sedikit kebobolan minggu lalu. Coba terapkan aturan tunggu 24 jam sebelum beli item game, agar target Laptop barumu di Agustus 2027 tidak terganggu. Semangat! 💪",
   "generated_at": "2025-05-12T09:05:00Z"
 }</code></pre>
 
@@ -477,7 +478,7 @@
             <p style="font-size: 0.88rem; line-height: 1.7; color: var(--text2); text-align: justify;">
               <strong>Andi Pratama</strong>, mahasiswa semester 3 Teknik Informatika, menggunakan sistem
               <strong>FAST</strong> untuk mengelola uang saku mingguan Rp 500.000. Perjalanan dimulai dari registrasi
-              (UC-01), pengaturan alokasi 50/30/20 (UC-07), hingga penetapan target tabungan Laptop baru Rp 8jt (UC-11).
+              (UC-01), pengaturan alokasi 50/30/15/5 (UC-07), hingga penetapan target tabungan Laptop baru Rp 8jt (UC-11).
               Setiap transaksi dicatat secara manual (UC-06A) atau via OCR (UC-13) untuk efisiensi. Sistem secara
               otomatis membagi pemasukan ke pos anggaran dan tabungan, memberikan peringatan jika Andi overspend di
               kategori Hiburan (UC-10), dan memberikan insight cerdas via Gemini AI (UC-20) untuk memastikan Andi tetap
@@ -693,7 +694,7 @@
             <p style="font-size: 0.88rem; color: var(--text2); line-height: 1.8; margin-bottom: 1.5rem;">
             </p>
             <ol style="font-size: 0.85rem; color: var(--text2); line-height: 1.8; padding-left: 1.2rem;">
-              <li><strong>Input Awal:</strong> Budi mengunggah foto struk senilai Rp 150.000. Data masuk ke entitas
+              <li><strong>Input Awal:</strong> Andi mengunggah foto struk senilai Rp 150.000. Data masuk ke entitas
                 <code>Receipt</code>.</li>
               <li><strong>Komunikasi OCR:</strong> Kelas <code>Receipt</code> memicu metode <code>process_ocr()</code>
                 yang menggunakan <code>OCRResponse</code>. Di sini terjadi relasi <strong>Dependensi</strong> di mana
@@ -703,7 +704,7 @@
                 jika <code>Receipt</code> dihapus, maka <code>ReceiptItem</code> tersebut juga akan hilang.</li>
               <li><strong>Sinkronisasi Transaksi:</strong> Data yang sudah valid kemudian "mengalir" menjadi entitas
                 <code>Transaction</code>. Hubungan <strong>Asosiasi</strong> memastikan transaksi ini tercatat atas nama
-                <code>User</code> (Budi).</li>
+                <code>User</code> (Andi).</li>
               <li><strong>Update Real-time:</strong> <code>Transaction</code> baru ini secara otomatis memicu metode
                 <code>update_balance()</code> pada <code>BudgetRemaining</code> untuk memotong kuota anggaran makan
                 siang Andi hari itu.</li>
